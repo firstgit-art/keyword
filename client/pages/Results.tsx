@@ -1090,16 +1090,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                     : "Your professional media kit for brands"}
                 </p>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    setDownloadingId("mediaKit");
                     void generateDownload(
                       "mediaKit",
                       `${personalInfo.name || quizData?.name || "Creator"}_Media_Kit_${language}.pdf`,
-                    )
-                  }
-                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all"
+                    );
+                  }}
+                  disabled={downloadingId === "mediaKit"}
+                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Download className="w-4 h-4 inline mr-2" />
-                  {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                  {downloadingId === "mediaKit"
+                    ? language === "hindi"
+                      ? "तैयार किया जा रहा है..."
+                      : "Preparing..."
+                    : language === "hindi"
+                      ? "डाउनलोड करें"
+                      : "Download"}
                 </button>
               </div>
 
