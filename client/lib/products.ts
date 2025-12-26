@@ -9464,53 +9464,68 @@ function wrapTextToLines(
   fontSize: number,
   maxWidth: number,
 ): string[] {
-  const trimmed = text.replace(/\s+/g, (segment) =>
-    segment.includes("\n") ? segment : " ",
-  );
+  try {
+    const trimmed = text.replace(/\s+/g, (segment) =>
+      segment.includes("\n") ? segment : " ",
+    );
 
-  if (!trimmed) {
-    return [];
-  }
-
-  const words = trimmed.split(" ");
-  const lines: string[] = [];
-  let currentLine = "";
-
-  const pushCurrentLine = () => {
-    if (currentLine.trim().length > 0) {
-      lines.push(currentLine.trimEnd());
-    }
-    currentLine = "";
-  };
-
-  for (const word of words) {
-    if (!word) {
-      continue;
+    if (!trimmed) {
+      return [];
     }
 
-    const candidate = currentLine ? `${currentLine} ${word}` : word;
-    const width = font.widthOfTextAtSize(candidate, fontSize);
+    const words = trimmed.split(" ");
+    const lines: string[] = [];
+    let currentLine = "";
 
-    if (width <= maxWidth) {
-      currentLine = candidate;
-      continue;
-    }
+    const pushCurrentLine = () => {
+      if (currentLine.trim().length > 0) {
+        lines.push(currentLine.trimEnd());
+      }
+      currentLine = "";
+    };
 
-    if (!currentLine) {
-      const splitWord = splitLongWord(word, font, fontSize, maxWidth);
-      lines.push(...splitWord.slice(0, -1));
-      currentLine = splitWord[splitWord.length - 1] ?? "";
-      continue;
+    for (const word of words) {
+      if (!word) {
+        continue;
+      }
+
+      try {
+        const candidate = currentLine ? `${currentLine} ${word}` : word;
+        const width = font.widthOfTextAtSize(candidate, fontSize);
+
+        if (width <= maxWidth) {
+          currentLine = candidate;
+          continue;
+        }
+
+        if (!currentLine) {
+          const splitWord = splitLongWord(word, font, fontSize, maxWidth);
+          lines.push(...splitWord.slice(0, -1));
+          currentLine = splitWord[splitWord.length - 1] ?? "";
+          continue;
+        }
+
+        pushCurrentLine();
+        const splitWord = splitLongWord(word, font, fontSize, maxWidth);
+        currentLine = splitWord.pop() ?? "";
+        lines.push(...splitWord);
+      } catch (wordError) {
+        // If a word fails to process, just add it as-is
+        console.warn("Error processing word:", word, wordError);
+        if (currentLine) {
+          pushCurrentLine();
+        }
+        currentLine = word;
+      }
     }
 
     pushCurrentLine();
-    const splitWord = splitLongWord(word, font, fontSize, maxWidth);
-    currentLine = splitWord.pop() ?? "";
-    lines.push(...splitWord);
+    return lines;
+  } catch (error) {
+    console.error("Error in wrapTextToLines:", error);
+    // Fallback: return the text as single lines
+    return text.split("\n");
   }
-
-  pushCurrentLine();
-  return lines;
 }
 
 function splitLongWord(
