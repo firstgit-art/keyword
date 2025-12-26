@@ -3,15 +3,31 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Check if credentials are placeholder values (invalid)
+const isValidUrl = (url: string | undefined): boolean => {
+  if (!url) return false;
+  if (typeof url !== "string") return false;
+  if (url.includes("supabase.co") && url.length > 20) return true;
+  return false;
+};
+
+const isValidKey = (key: string | undefined): boolean => {
+  if (!key) return false;
+  if (typeof key !== "string") return false;
+  if (key === "your-anon-key") return false;
+  if (key.length < 10) return false; // Real Supabase keys are much longer
+  return true;
+};
+
 // Validate environment variables
-if (!supabaseUrl || !supabaseUrl.includes("supabase.co")) {
+if (!isValidUrl(supabaseUrl)) {
   console.warn(
     "⚠️ Supabase URL not configured. Some features will be disabled.",
   );
   console.log("Please set VITE_SUPABASE_URL in your environment variables");
 }
 
-if (!supabaseAnonKey || supabaseAnonKey === "your-anon-key") {
+if (!isValidKey(supabaseAnonKey)) {
   console.warn(
     "⚠️ Supabase anon key not configured. Some features will be disabled.",
   );
@@ -22,7 +38,7 @@ if (!supabaseAnonKey || supabaseAnonKey === "your-anon-key") {
 
 // Create client only if we have valid credentials
 export const supabase =
-  supabaseUrl && supabaseAnonKey && supabaseUrl.includes("supabase.co")
+  isValidUrl(supabaseUrl) && isValidKey(supabaseAnonKey)
     ? createClient(supabaseUrl, supabaseAnonKey)
     : null;
 
