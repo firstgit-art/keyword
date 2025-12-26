@@ -210,13 +210,26 @@ export const dbHelpers = {
       return { data: mapLocal(productConfigs), error: null };
     }
 
-    // Try Supabase first
+    // Try Supabase first with timeout
     try {
-      const { data, error } = await supabase
+      // Add a timeout to prevent hanging indefinitely
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Supabase request timeout")),
+          5000, // 5 second timeout
+        ),
+      );
+
+      const supabasePromise = supabase
         .from("products")
         .select("*")
         .eq("is_enabled", true)
         .order("created_at", { ascending: false });
+
+      const { data, error } = (await Promise.race([
+        supabasePromise,
+        timeoutPromise,
+      ])) as any;
 
       // Fallback if error or empty
       if (error || !data || data.length === 0) {
@@ -231,8 +244,8 @@ export const dbHelpers = {
       return { data, error: null };
     } catch (e) {
       console.warn(
-        "Unexpected error fetching Supabase products, using local configs",
-        e,
+        "Error fetching Supabase products (using local configs):",
+        e instanceof Error ? e.message : String(e),
       );
       const { productConfigs } = await import("./products");
       return { data: mapLocal(productConfigs), error: null };
