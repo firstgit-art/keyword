@@ -1204,16 +1204,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                       : "Calculate real-time earnings potential based on your follower count & niche"}
                   </p>
                   <button
-                    onClick={() =>
+                    onClick={() => {
+                      setDownloadingId("monetizationCalculator");
                       void generateDownload(
                         "monetizationCalculator",
                         `${personalInfo.name || quizData?.name || "Creator"}_Monetization_Calculator_${language}.pdf`,
-                      )
-                    }
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                      );
+                    }}
+                    disabled={downloadingId === "monetizationCalculator"}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Download className="w-4 h-4 inline mr-2" />
-                    {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                    {downloadingId === "monetizationCalculator"
+                      ? language === "hindi"
+                        ? "तैयार किया जा रहा है..."
+                        : "Preparing..."
+                      : language === "hindi"
+                        ? "डाउनलोड करें"
+                        : "Download"}
                   </button>
                 </div>
 
