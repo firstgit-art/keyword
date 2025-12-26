@@ -1,6 +1,102 @@
 // Product Management System
 import { PDFDocument, StandardFonts, type PDFFont } from "pdf-lib";
 
+// Sanitize content for PDF rendering by removing unsupported Unicode characters
+function sanitizeContentForPDF(content: string): string {
+  // Replace box-drawing and special Unicode characters with ASCII equivalents
+  const replacements: [RegExp, string][] = [
+    // Box drawing characters
+    [/╔/g, "┌"],
+    [/╕/g, "┐"],
+    [/╖/g, "┐"],
+    [/╗/g, "┐"],
+    [/╘/g, "└"],
+    [/╙/g, "└"],
+    [/╚/g, "└"],
+    [/╛/g, "┘"],
+    [/╜/g, "┘"],
+    [/╝/g, "┘"],
+    [/╞/g, "├"],
+    [/╟/g, "├"],
+    [/╠/g, "├"],
+    [/╡/g, "┤"],
+    [/╢/g, "┤"],
+    [/╣/g, "┤"],
+    [/╤/g, "┬"],
+    [/╥/g, "┬"],
+    [/╦/g, "┬"],
+    [/╧/g, "┴"],
+    [/╨/g, "┴"],
+    [/╩/g, "┴"],
+    [/╪/g, "┼"],
+    [/╫/g, "┼"],
+    [/╬/g, "┼"],
+    [/═/g, "-"],
+    [/║/g, "|"],
+    [/╒/g, "┌"],
+    [/╓/g, "┌"],
+    [/╔/g, "┌"],
+    // Additional replacements for other problematic Unicode characters
+    [/–/g, "-"], // en dash
+    [/—/g, "--"], // em dash
+    [/…/g, "..."], // ellipsis
+    [/'/g, "'"], // fancy apostrophe
+    [/'/g, "'"],
+    [/"/g, '"'], // fancy quotes
+    [/"/g, '"'],
+    [/"/g, '"'],
+  ];
+
+  let sanitized = content;
+  for (const [pattern, replacement] of replacements) {
+    sanitized = sanitized.replace(pattern, replacement);
+  }
+
+  // Remove any remaining characters that can't be encoded in Helvetica
+  // Keep only ASCII printable characters and common extended ASCII
+  sanitized = sanitized
+    .split("")
+    .map((char) => {
+      const code = char.charCodeAt(0);
+      // Keep ASCII (0-127) and extended Latin (128-255)
+      if (code < 256) {
+        return char;
+      }
+      // For Unicode characters outside extended ASCII, try to transliterate
+      // Otherwise skip the character
+      try {
+        // Try to use basic ASCII mapping for common characters
+        const mapping: { [key: string]: string } = {
+          "₹": "Rs",
+          "€": "EUR",
+          "£": "GBP",
+          "¥": "JPY",
+          "©": "(c)",
+          "®": "(R)",
+          "™": "(TM)",
+          "✓": "checkmark",
+          "✔": "check",
+          "✕": "x",
+          "✖": "x",
+          "★": "*",
+          "✨": "*",
+          "→": "->",
+          "←": "<-",
+          "↑": "^",
+          "↓": "v",
+          "⚡": "!",
+          "🔥": "!",
+        };
+        return mapping[char] || " ";
+      } catch {
+        return " ";
+      }
+    })
+    .join("");
+
+  return sanitized;
+}
+
 export interface ProductConfig {
   id: string;
   name: string;
