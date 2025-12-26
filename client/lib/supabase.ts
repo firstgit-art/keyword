@@ -31,6 +31,23 @@ export const isSupabaseConfigured = () => {
   return supabase !== null;
 };
 
+// Wrapper function to safely execute Supabase operations
+// Returns null on failure instead of throwing
+export async function safeSupabaseCall<T>(
+  operation: () => Promise<T>,
+  defaultValue: T,
+): Promise<T> {
+  try {
+    if (!supabase) {
+      return defaultValue;
+    }
+    return await operation();
+  } catch (error) {
+    console.warn("Supabase operation failed:", error);
+    return defaultValue;
+  }
+}
+
 // Database Types
 export interface User {
   id: string;
