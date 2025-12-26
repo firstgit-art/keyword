@@ -940,23 +940,54 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
           duration: 3000,
         });
 
-        // Try to record download in Supabase (non-blocking)
+        // Try to record download in Supabase (non-blocking with timeout)
         try {
           if (isSupabaseConfigured() && supabase) {
-            const { data } = await supabase.auth.getUser();
-            const userId = data.user?.id;
+            // Add timeout to prevent hanging
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(
+                () => reject(new Error("Supabase timeout")),
+                3000, // 3 second timeout for recording
+              ),
+            );
+
+            const getUserPromise = supabase.auth.getUser();
+
+            const { data } = (await Promise.race([
+              getUserPromise,
+              timeoutPromise,
+            ])) as any;
+
+            const userId = data?.user?.id;
             if (userId) {
-              await dbHelpers.recordDownload({
+              // Record download with its own timeout
+              const recordPromise = dbHelpers.recordDownload({
                 user_id: userId,
                 product_id: "analysis",
                 download_id: type,
                 downloaded_at: new Date().toISOString(),
               });
+
+              const recordTimeoutPromise = new Promise((_, reject) =>
+                setTimeout(
+                  () => reject(new Error("Record download timeout")),
+                  3000,
+                ),
+              );
+
+              await Promise.race([recordPromise, recordTimeoutPromise]);
             }
           }
         } catch (supabaseError) {
           // Log error but don't show to user - download was successful
-          console.warn("Failed to record download in database:", supabaseError);
+          const errorMsg =
+            supabaseError instanceof Error
+              ? supabaseError.message
+              : String(supabaseError);
+          console.warn(
+            "Failed to record download in database (download still succeeded):",
+            errorMsg,
+          );
         }
       } else {
         // Download failed
