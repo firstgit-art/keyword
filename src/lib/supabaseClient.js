@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
+// NOTE: This file is deprecated. Use client/lib/supabase.ts instead.
+// All Supabase configuration should come from environment variables:
+// VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
 
-const supabaseUrl = 'https://fjtuagjmjiljsnzytl.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZqdHVhZ2ptaWpsdnNudHp5dGxyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzMTMyMDIsImV4cCI6MjA3MTg4OTIwMn0.j40OiKT5pVoUBESfIp07i5XyJu-ayrddiL8YAt8zL54';
-
-export const supabase = createClient(supabaseUrl, supabaseKey);
+// DO NOT commit Supabase credentials to the repository.
+// Always use environment variables for sensitive configuration.
