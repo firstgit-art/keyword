@@ -926,23 +926,56 @@ ${language === "hindi" ? "⏰ लास्ट अपडेटे:" : "⏰ LAST U
 ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू:" : "💡 NEXT REVIEW:"} ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}`;
     }
 
-    await downloadFile(content, fileName);
+    // Show loading toast
+    const loadingToast = toast.loading("Generating your file...");
 
     try {
-      if (isSupabaseConfigured() && supabase) {
-        const { data } = await supabase.auth.getUser();
-        const userId = data.user?.id;
-        if (userId) {
-          await dbHelpers.recordDownload({
-            user_id: userId,
-            product_id: "analysis",
-            download_id: type,
-            downloaded_at: new Date().toISOString(),
-          });
+      // Generate and download file
+      const result = await downloadFile(content, fileName);
+
+      if (result.success) {
+        // Dismiss loading toast and show success
+        toast.dismiss(loadingToast);
+        toast.success("Download started! Check your downloads folder.", {
+          duration: 3000,
+        });
+
+        // Try to record download in Supabase (non-blocking)
+        try {
+          if (isSupabaseConfigured() && supabase) {
+            const { data } = await supabase.auth.getUser();
+            const userId = data.user?.id;
+            if (userId) {
+              await dbHelpers.recordDownload({
+                user_id: userId,
+                product_id: "analysis",
+                download_id: type,
+                downloaded_at: new Date().toISOString(),
+              });
+            }
+          }
+        } catch (supabaseError) {
+          // Log error but don't show to user - download was successful
+          console.warn("Failed to record download in database:", supabaseError);
         }
+      } else {
+        // Download failed
+        toast.dismiss(loadingToast);
+        toast.error(
+          result.error || "Failed to generate download. Please try again.",
+          { duration: 4000 },
+        );
+        console.error("Download generation error:", result.error);
       }
-    } catch (e) {
-      // no-op
+    } catch (error) {
+      // Unexpected error
+      toast.dismiss(loadingToast);
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      toast.error(`Download failed: ${errorMessage}`, { duration: 4000 });
+      console.error("Unexpected download error:", error);
+    } finally {
+      setDownloadingId(null);
     }
   };
 
