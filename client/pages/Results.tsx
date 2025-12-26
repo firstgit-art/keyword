@@ -1056,16 +1056,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                     : "Your personalized fame score and detailed analysis"}
                 </p>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    setDownloadingId("fameScore");
                     void generateDownload(
                       "fameScore",
                       `${personalInfo.name || quizData?.name || "Creator"}_Fame_Score_Report_${language}.pdf`,
-                    )
-                  }
-                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all"
+                    );
+                  }}
+                  disabled={downloadingId === "fameScore"}
+                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Download className="w-4 h-4 inline mr-2" />
-                  {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                  {downloadingId === "fameScore"
+                    ? language === "hindi"
+                      ? "तैयार किया जा रहा है..."
+                      : "Preparing..."
+                    : language === "hindi"
+                      ? "डाउनलोड करें"
+                      : "Download"}
                 </button>
               </div>
 
