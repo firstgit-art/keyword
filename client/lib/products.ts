@@ -9256,62 +9256,109 @@ export function generateProductDownload(
 export async function downloadFile(
   content: string,
   fileName: string,
-): Promise<void> {
-  const pdfDoc = await PDFDocument.create();
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const fontSize = 12;
-  const lineHeight = fontSize * 1.4;
-  const margin = 48;
-
-  let page = pdfDoc.addPage();
-  let pageSize = page.getSize();
-  const maxWidth = pageSize.width - margin * 2;
-  let yPosition = pageSize.height - margin;
-
-  const normalizedContent = content.replace(/\r\n/g, "\n");
-  const paragraphs = normalizedContent.split("\n");
-
-  for (const paragraph of paragraphs) {
-    const lines = wrapTextToLines(paragraph, font, fontSize, maxWidth);
-
-    if (lines.length === 0) {
-      yPosition -= lineHeight;
-      continue;
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Validate inputs
+    if (!content || typeof content !== "string") {
+      return { success: false, error: "Invalid content for download" };
     }
 
-    for (const line of lines) {
-      if (yPosition < margin) {
-        page = pdfDoc.addPage();
-        pageSize = page.getSize();
-        yPosition = pageSize.height - margin;
+    if (!fileName || typeof fileName !== "string") {
+      return { success: false, error: "Invalid file name" };
+    }
+
+    // Create PDF document
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontSize = 12;
+    const lineHeight = fontSize * 1.4;
+    const margin = 48;
+
+    let page = pdfDoc.addPage();
+    let pageSize = page.getSize();
+    const maxWidth = pageSize.width - margin * 2;
+    let yPosition = pageSize.height - margin;
+
+    // Process content
+    const normalizedContent = content.replace(/\r\n/g, "\n");
+    const paragraphs = normalizedContent.split("\n");
+
+    for (const paragraph of paragraphs) {
+      const lines = wrapTextToLines(paragraph, font, fontSize, maxWidth);
+
+      if (lines.length === 0) {
+        yPosition -= lineHeight;
+        continue;
       }
 
-      page.drawText(line, {
-        x: margin,
-        y: yPosition,
-        size: fontSize,
-        font,
-      });
+      for (const line of lines) {
+        if (yPosition < margin) {
+          page = pdfDoc.addPage();
+          pageSize = page.getSize();
+          yPosition = pageSize.height - margin;
+        }
 
-      yPosition -= lineHeight;
+        page.drawText(line, {
+          x: margin,
+          y: yPosition,
+          size: fontSize,
+          font,
+        });
+
+        yPosition -= lineHeight;
+      }
+
+      yPosition -= lineHeight * 0.5;
     }
 
-    yPosition -= lineHeight * 0.5;
-  }
+    // Save and download
+    const pdfBytes = await pdfDoc.save();
 
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  const trimmedName = fileName.trim();
-  anchor.download = /\.pdf$/i.test(trimmedName)
-    ? trimmedName
-    : `${trimmedName}.pdf`;
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
+    // Verify we have valid PDF bytes
+    if (!pdfBytes || pdfBytes.length === 0) {
+      return { success: false, error: "Failed to generate PDF content" };
+    }
+
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+
+    // Verify blob was created
+    if (!blob || blob.size === 0) {
+      return { success: false, error: "Failed to create file" };
+    }
+
+    const url = URL.createObjectURL(blob);
+
+    // Verify URL was created
+    if (!url) {
+      return { success: false, error: "Failed to create download link" };
+    }
+
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    const trimmedName = fileName.trim();
+    anchor.download = /\.pdf$/i.test(trimmedName)
+      ? trimmedName
+      : `${trimmedName}.pdf`;
+
+    // Ensure anchor is attached to DOM before clicking
+    document.body.appendChild(anchor);
+
+    // Trigger download
+    anchor.click();
+
+    // Cleanup - use setTimeout to ensure download is initiated
+    setTimeout(() => {
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+    }, 100);
+
+    return { success: true };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to download file";
+    console.error("Download error:", errorMessage, error);
+    return { success: false, error: errorMessage };
+  }
 }
 
 function wrapTextToLines(
