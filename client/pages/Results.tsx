@@ -36,6 +36,7 @@ import {
   Rocket,
   Heart,
 } from "lucide-react";
+import { toast } from "sonner";
 import { analyzeQuizData } from "../lib/ai-analysis";
 import { supabase, dbHelpers, isSupabaseConfigured } from "@/lib/supabase";
 import { downloadFile } from "@/lib/products";
