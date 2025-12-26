@@ -1,6 +1,102 @@
 // Product Management System
 import { PDFDocument, StandardFonts, type PDFFont } from "pdf-lib";
 
+// Sanitize content for PDF rendering by removing unsupported Unicode characters
+function sanitizeContentForPDF(content: string): string {
+  // Replace box-drawing and special Unicode characters with ASCII equivalents
+  const replacements: [RegExp, string][] = [
+    // Box drawing characters
+    [/╔/g, "┌"],
+    [/╕/g, "┐"],
+    [/╖/g, "┐"],
+    [/╗/g, "┐"],
+    [/╘/g, "└"],
+    [/╙/g, "└"],
+    [/╚/g, "└"],
+    [/╛/g, "┘"],
+    [/╜/g, "┘"],
+    [/╝/g, "┘"],
+    [/╞/g, "├"],
+    [/╟/g, "├"],
+    [/╠/g, "├"],
+    [/╡/g, "┤"],
+    [/╢/g, "┤"],
+    [/╣/g, "┤"],
+    [/╤/g, "┬"],
+    [/╥/g, "┬"],
+    [/╦/g, "┬"],
+    [/╧/g, "┴"],
+    [/╨/g, "┴"],
+    [/╩/g, "┴"],
+    [/╪/g, "┼"],
+    [/╫/g, "┼"],
+    [/╬/g, "┼"],
+    [/═/g, "-"],
+    [/║/g, "|"],
+    [/╒/g, "┌"],
+    [/╓/g, "┌"],
+    [/╔/g, "┌"],
+    // Additional replacements for other problematic Unicode characters
+    [/–/g, "-"], // en dash
+    [/—/g, "--"], // em dash
+    [/…/g, "..."], // ellipsis
+    [/'/g, "'"], // fancy apostrophe
+    [/'/g, "'"],
+    [/"/g, '"'], // fancy quotes
+    [/"/g, '"'],
+    [/"/g, '"'],
+  ];
+
+  let sanitized = content;
+  for (const [pattern, replacement] of replacements) {
+    sanitized = sanitized.replace(pattern, replacement);
+  }
+
+  // Remove any remaining characters that can't be encoded in Helvetica
+  // Keep only ASCII printable characters and common extended ASCII
+  sanitized = sanitized
+    .split("")
+    .map((char) => {
+      const code = char.charCodeAt(0);
+      // Keep ASCII (0-127) and extended Latin (128-255)
+      if (code < 256) {
+        return char;
+      }
+      // For Unicode characters outside extended ASCII, try to transliterate
+      // Otherwise skip the character
+      try {
+        // Try to use basic ASCII mapping for common characters
+        const mapping: { [key: string]: string } = {
+          "₹": "Rs",
+          "€": "EUR",
+          "£": "GBP",
+          "¥": "JPY",
+          "©": "(c)",
+          "®": "(R)",
+          "™": "(TM)",
+          "✓": "checkmark",
+          "✔": "check",
+          "✕": "x",
+          "✖": "x",
+          "★": "*",
+          "✨": "*",
+          "→": "->",
+          "←": "<-",
+          "↑": "^",
+          "↓": "v",
+          "⚡": "!",
+          "🔥": "!",
+        };
+        return mapping[char] || " ";
+      } catch {
+        return " ";
+      }
+    })
+    .join("");
+
+  return sanitized;
+}
+
 export interface ProductConfig {
   id: string;
   name: string;
@@ -9256,62 +9352,110 @@ export function generateProductDownload(
 export async function downloadFile(
   content: string,
   fileName: string,
-): Promise<void> {
-  const pdfDoc = await PDFDocument.create();
-  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-  const fontSize = 12;
-  const lineHeight = fontSize * 1.4;
-  const margin = 48;
-
-  let page = pdfDoc.addPage();
-  let pageSize = page.getSize();
-  const maxWidth = pageSize.width - margin * 2;
-  let yPosition = pageSize.height - margin;
-
-  const normalizedContent = content.replace(/\r\n/g, "\n");
-  const paragraphs = normalizedContent.split("\n");
-
-  for (const paragraph of paragraphs) {
-    const lines = wrapTextToLines(paragraph, font, fontSize, maxWidth);
-
-    if (lines.length === 0) {
-      yPosition -= lineHeight;
-      continue;
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    // Validate inputs
+    if (!content || typeof content !== "string") {
+      return { success: false, error: "Invalid content for download" };
     }
 
-    for (const line of lines) {
-      if (yPosition < margin) {
-        page = pdfDoc.addPage();
-        pageSize = page.getSize();
-        yPosition = pageSize.height - margin;
+    if (!fileName || typeof fileName !== "string") {
+      return { success: false, error: "Invalid file name" };
+    }
+
+    // Create PDF document
+    const pdfDoc = await PDFDocument.create();
+    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+    const fontSize = 12;
+    const lineHeight = fontSize * 1.4;
+    const margin = 48;
+
+    let page = pdfDoc.addPage();
+    let pageSize = page.getSize();
+    const maxWidth = pageSize.width - margin * 2;
+    let yPosition = pageSize.height - margin;
+
+    // Sanitize and process content
+    const sanitizedContent = sanitizeContentForPDF(content);
+    const normalizedContent = sanitizedContent.replace(/\r\n/g, "\n");
+    const paragraphs = normalizedContent.split("\n");
+
+    for (const paragraph of paragraphs) {
+      const lines = wrapTextToLines(paragraph, font, fontSize, maxWidth);
+
+      if (lines.length === 0) {
+        yPosition -= lineHeight;
+        continue;
       }
 
-      page.drawText(line, {
-        x: margin,
-        y: yPosition,
-        size: fontSize,
-        font,
-      });
+      for (const line of lines) {
+        if (yPosition < margin) {
+          page = pdfDoc.addPage();
+          pageSize = page.getSize();
+          yPosition = pageSize.height - margin;
+        }
 
-      yPosition -= lineHeight;
+        page.drawText(line, {
+          x: margin,
+          y: yPosition,
+          size: fontSize,
+          font,
+        });
+
+        yPosition -= lineHeight;
+      }
+
+      yPosition -= lineHeight * 0.5;
     }
 
-    yPosition -= lineHeight * 0.5;
-  }
+    // Save and download
+    const pdfBytes = await pdfDoc.save();
 
-  const pdfBytes = await pdfDoc.save();
-  const blob = new Blob([pdfBytes], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = url;
-  const trimmedName = fileName.trim();
-  anchor.download = /\.pdf$/i.test(trimmedName)
-    ? trimmedName
-    : `${trimmedName}.pdf`;
-  document.body.appendChild(anchor);
-  anchor.click();
-  document.body.removeChild(anchor);
-  URL.revokeObjectURL(url);
+    // Verify we have valid PDF bytes
+    if (!pdfBytes || pdfBytes.length === 0) {
+      return { success: false, error: "Failed to generate PDF content" };
+    }
+
+    const blob = new Blob([pdfBytes], { type: "application/pdf" });
+
+    // Verify blob was created
+    if (!blob || blob.size === 0) {
+      return { success: false, error: "Failed to create file" };
+    }
+
+    const url = URL.createObjectURL(blob);
+
+    // Verify URL was created
+    if (!url) {
+      return { success: false, error: "Failed to create download link" };
+    }
+
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    const trimmedName = fileName.trim();
+    anchor.download = /\.pdf$/i.test(trimmedName)
+      ? trimmedName
+      : `${trimmedName}.pdf`;
+
+    // Ensure anchor is attached to DOM before clicking
+    document.body.appendChild(anchor);
+
+    // Trigger download
+    anchor.click();
+
+    // Cleanup - use setTimeout to ensure download is initiated
+    setTimeout(() => {
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+    }, 100);
+
+    return { success: true };
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : "Failed to download file";
+    console.error("Download error:", errorMessage, error);
+    return { success: false, error: errorMessage };
+  }
 }
 
 function wrapTextToLines(
@@ -9320,53 +9464,68 @@ function wrapTextToLines(
   fontSize: number,
   maxWidth: number,
 ): string[] {
-  const trimmed = text.replace(/\s+/g, (segment) =>
-    segment.includes("\n") ? segment : " ",
-  );
+  try {
+    const trimmed = text.replace(/\s+/g, (segment) =>
+      segment.includes("\n") ? segment : " ",
+    );
 
-  if (!trimmed) {
-    return [];
-  }
-
-  const words = trimmed.split(" ");
-  const lines: string[] = [];
-  let currentLine = "";
-
-  const pushCurrentLine = () => {
-    if (currentLine.trim().length > 0) {
-      lines.push(currentLine.trimEnd());
-    }
-    currentLine = "";
-  };
-
-  for (const word of words) {
-    if (!word) {
-      continue;
+    if (!trimmed) {
+      return [];
     }
 
-    const candidate = currentLine ? `${currentLine} ${word}` : word;
-    const width = font.widthOfTextAtSize(candidate, fontSize);
+    const words = trimmed.split(" ");
+    const lines: string[] = [];
+    let currentLine = "";
 
-    if (width <= maxWidth) {
-      currentLine = candidate;
-      continue;
-    }
+    const pushCurrentLine = () => {
+      if (currentLine.trim().length > 0) {
+        lines.push(currentLine.trimEnd());
+      }
+      currentLine = "";
+    };
 
-    if (!currentLine) {
-      const splitWord = splitLongWord(word, font, fontSize, maxWidth);
-      lines.push(...splitWord.slice(0, -1));
-      currentLine = splitWord[splitWord.length - 1] ?? "";
-      continue;
+    for (const word of words) {
+      if (!word) {
+        continue;
+      }
+
+      try {
+        const candidate = currentLine ? `${currentLine} ${word}` : word;
+        const width = font.widthOfTextAtSize(candidate, fontSize);
+
+        if (width <= maxWidth) {
+          currentLine = candidate;
+          continue;
+        }
+
+        if (!currentLine) {
+          const splitWord = splitLongWord(word, font, fontSize, maxWidth);
+          lines.push(...splitWord.slice(0, -1));
+          currentLine = splitWord[splitWord.length - 1] ?? "";
+          continue;
+        }
+
+        pushCurrentLine();
+        const splitWord = splitLongWord(word, font, fontSize, maxWidth);
+        currentLine = splitWord.pop() ?? "";
+        lines.push(...splitWord);
+      } catch (wordError) {
+        // If a word fails to process, just add it as-is
+        console.warn("Error processing word:", word, wordError);
+        if (currentLine) {
+          pushCurrentLine();
+        }
+        currentLine = word;
+      }
     }
 
     pushCurrentLine();
-    const splitWord = splitLongWord(word, font, fontSize, maxWidth);
-    currentLine = splitWord.pop() ?? "";
-    lines.push(...splitWord);
+    return lines;
+  } catch (error) {
+    console.error("Error in wrapTextToLines:", error);
+    // Fallback: return the text as single lines
+    return text.split("\n");
   }
-
-  pushCurrentLine();
-  return lines;
 }
 
 function splitLongWord(
@@ -9375,27 +9534,38 @@ function splitLongWord(
   fontSize: number,
   maxWidth: number,
 ): string[] {
-  const segments: string[] = [];
-  let remaining = word;
+  try {
+    const segments: string[] = [];
+    let remaining = word;
 
-  while (remaining.length > 0) {
-    let sliceLength = remaining.length;
+    while (remaining.length > 0) {
+      let sliceLength = remaining.length;
 
-    while (sliceLength > 0) {
-      const segment = remaining.slice(0, sliceLength);
-      if (font.widthOfTextAtSize(segment, fontSize) <= maxWidth) {
-        segments.push(segment);
-        remaining = remaining.slice(sliceLength);
-        break;
+      while (sliceLength > 0) {
+        try {
+          const segment = remaining.slice(0, sliceLength);
+          if (font.widthOfTextAtSize(segment, fontSize) <= maxWidth) {
+            segments.push(segment);
+            remaining = remaining.slice(sliceLength);
+            break;
+          }
+        } catch {
+          // If width calculation fails for this segment, try shorter
+        }
+        sliceLength -= 1;
       }
-      sliceLength -= 1;
+
+      if (sliceLength === 0) {
+        // If we can't fit even one character, still add it to avoid infinite loop
+        segments.push(remaining.charAt(0));
+        remaining = remaining.slice(1);
+      }
     }
 
-    if (sliceLength === 0) {
-      segments.push(remaining.charAt(0));
-      remaining = remaining.slice(1);
-    }
+    return segments.length > 0 ? segments : [word]; // Always return something
+  } catch (error) {
+    console.error("Error in splitLongWord:", error);
+    // Fallback: return the word as-is, even if it's too long
+    return [word];
   }
-
-  return segments;
 }

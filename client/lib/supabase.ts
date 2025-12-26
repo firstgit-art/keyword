@@ -3,33 +3,94 @@ import { createClient } from "@supabase/supabase-js";
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Validate environment variables
-if (!supabaseUrl || !supabaseUrl.includes("supabase.co")) {
-  console.warn(
-    "⚠️ Supabase URL not configured. Some features will be disabled.",
-  );
-  console.log("Please set VITE_SUPABASE_URL in your environment variables");
-}
+// Check if credentials are placeholder values (invalid)
+const isValidUrl = (url: string | undefined): boolean => {
+  if (!url) return false;
+  if (typeof url !== "string") return false;
+  // Must be a valid Supabase URL
+  // Format: https://[project-ref].supabase.co
+  if (!url.startsWith("https://")) return false;
+  if (!url.includes("supabase.co")) return false;
+  if (url.length < 30) return false; // Real URLs are longer
+  // Check if it looks like a real project ref (alphanumeric + hyphens)
+  const projectRef = url.split("//")[1]?.split(".")[0];
+  if (!projectRef || projectRef.length < 15) return false;
+  return true;
+};
 
-if (!supabaseAnonKey || supabaseAnonKey === "your-anon-key") {
+const isValidKey = (key: string | undefined): boolean => {
+  if (!key) return false;
+  if (typeof key !== "string") return false;
+  if (key === "your-anon-key") return false;
+  // Supabase anon keys are JWT tokens, much longer than 10 chars
+  if (key.length < 30) return false;
+  // Should contain JWT structure (parts separated by dots)
+  if (!key.includes(".")) return false;
+  const parts = key.split(".");
+  if (parts.length !== 3) return false; // JWT has 3 parts
+  return true;
+};
+
+// Validate environment variables
+const urlValid = isValidUrl(supabaseUrl);
+const keyValid = isValidKey(supabaseAnonKey);
+
+if (!urlValid) {
   console.warn(
-    "⚠️ Supabase anon key not configured. Some features will be disabled.",
+    "⚠️ Supabase URL not configured or invalid. All features will use local defaults.",
   );
   console.log(
-    "Please set VITE_SUPABASE_ANON_KEY in your environment variables",
+    "To enable Supabase, set VITE_SUPABASE_URL=https://[project].supabase.co",
   );
 }
 
-// Create client only if we have valid credentials
-export const supabase =
-  supabaseUrl && supabaseAnonKey && supabaseUrl.includes("supabase.co")
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null;
+if (!keyValid) {
+  console.warn(
+    "⚠️ Supabase anon key not configured or invalid. All features will use local defaults.",
+  );
+  console.log(
+    "To enable Supabase, set VITE_SUPABASE_ANON_KEY=<your-valid-jwt-key>",
+  );
+}
+
+// Create client only if we have BOTH valid credentials
+let supabaseClient: any = null;
+if (urlValid && keyValid) {
+  try {
+    supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!);
+    console.log("✅ Supabase initialized successfully");
+  } catch (error) {
+    console.error(
+      "❌ Failed to initialize Supabase client:",
+      error instanceof Error ? error.message : String(error),
+    );
+    supabaseClient = null;
+  }
+}
+
+export const supabase = supabaseClient;
 
 // Helper to check if Supabase is configured
 export const isSupabaseConfigured = () => {
   return supabase !== null;
 };
+
+// Wrapper function to safely execute Supabase operations
+// Returns null on failure instead of throwing
+export async function safeSupabaseCall<T>(
+  operation: () => Promise<T>,
+  defaultValue: T,
+): Promise<T> {
+  try {
+    if (!supabase) {
+      return defaultValue;
+    }
+    return await operation();
+  } catch (error) {
+    console.warn("Supabase operation failed:", error);
+    return defaultValue;
+  }
+}
 
 // Database Types
 export interface User {
@@ -193,13 +254,26 @@ export const dbHelpers = {
       return { data: mapLocal(productConfigs), error: null };
     }
 
-    // Try Supabase first
+    // Try Supabase first with timeout
     try {
-      const { data, error } = await supabase
+      // Add a timeout to prevent hanging indefinitely
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Supabase request timeout")),
+          5000, // 5 second timeout
+        ),
+      );
+
+      const supabasePromise = supabase
         .from("products")
         .select("*")
         .eq("is_enabled", true)
         .order("created_at", { ascending: false });
+
+      const { data, error } = (await Promise.race([
+        supabasePromise,
+        timeoutPromise,
+      ])) as any;
 
       // Fallback if error or empty
       if (error || !data || data.length === 0) {
@@ -214,8 +288,8 @@ export const dbHelpers = {
       return { data, error: null };
     } catch (e) {
       console.warn(
-        "Unexpected error fetching Supabase products, using local configs",
-        e,
+        "Error fetching Supabase products (using local configs):",
+        e instanceof Error ? e.message : String(e),
       );
       const { productConfigs } = await import("./products");
       return { data: mapLocal(productConfigs), error: null };

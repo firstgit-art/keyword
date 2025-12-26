@@ -36,6 +36,7 @@ import {
   Rocket,
   Heart,
 } from "lucide-react";
+import { toast } from "sonner";
 import { analyzeQuizData } from "../lib/ai-analysis";
 import { supabase, dbHelpers, isSupabaseConfigured } from "@/lib/supabase";
 import { downloadFile } from "@/lib/products";
@@ -243,6 +244,7 @@ export default function Results() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [products, setProducts] = useState<any[]>([]);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const t = sanitizeDeep(languages[language]);
 
@@ -924,23 +926,87 @@ ${language === "hindi" ? "⏰ लास्ट अपडेटे:" : "⏰ LAST U
 ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू:" : "💡 NEXT REVIEW:"} ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}`;
     }
 
-    await downloadFile(content, fileName);
+    // Show loading toast
+    const loadingToast = toast.loading("Generating your file...");
 
     try {
-      if (isSupabaseConfigured() && supabase) {
-        const { data } = await supabase.auth.getUser();
-        const userId = data.user?.id;
-        if (userId) {
-          await dbHelpers.recordDownload({
-            user_id: userId,
-            product_id: "analysis",
-            download_id: type,
-            downloaded_at: new Date().toISOString(),
-          });
+      // Generate and download file
+      const result = await downloadFile(content, fileName);
+
+      if (result.success) {
+        // Dismiss loading toast and show success
+        toast.dismiss(loadingToast);
+        toast.success("Download started! Check your downloads folder.", {
+          duration: 3000,
+        });
+
+        // Try to record download in Supabase (non-blocking with timeout)
+        try {
+          if (isSupabaseConfigured() && supabase) {
+            // Add timeout to prevent hanging
+            const timeoutPromise = new Promise((_, reject) =>
+              setTimeout(
+                () => reject(new Error("Supabase timeout")),
+                3000, // 3 second timeout for recording
+              ),
+            );
+
+            const getUserPromise = supabase.auth.getUser();
+
+            const { data } = (await Promise.race([
+              getUserPromise,
+              timeoutPromise,
+            ])) as any;
+
+            const userId = data?.user?.id;
+            if (userId) {
+              // Record download with its own timeout
+              const recordPromise = dbHelpers.recordDownload({
+                user_id: userId,
+                product_id: "analysis",
+                download_id: type,
+                downloaded_at: new Date().toISOString(),
+              });
+
+              const recordTimeoutPromise = new Promise((_, reject) =>
+                setTimeout(
+                  () => reject(new Error("Record download timeout")),
+                  3000,
+                ),
+              );
+
+              await Promise.race([recordPromise, recordTimeoutPromise]);
+            }
+          }
+        } catch (supabaseError) {
+          // Log error but don't show to user - download was successful
+          const errorMsg =
+            supabaseError instanceof Error
+              ? supabaseError.message
+              : String(supabaseError);
+          console.warn(
+            "Failed to record download in database (download still succeeded):",
+            errorMsg,
+          );
         }
+      } else {
+        // Download failed
+        toast.dismiss(loadingToast);
+        toast.error(
+          result.error || "Failed to generate download. Please try again.",
+          { duration: 4000 },
+        );
+        console.error("Download generation error:", result.error);
       }
-    } catch (e) {
-      // no-op
+    } catch (error) {
+      // Unexpected error
+      toast.dismiss(loadingToast);
+      const errorMessage =
+        error instanceof Error ? error.message : "An unexpected error occurred";
+      toast.error(`Download failed: ${errorMessage}`, { duration: 4000 });
+      console.error("Unexpected download error:", error);
+    } finally {
+      setDownloadingId(null);
     }
   };
 
@@ -1021,16 +1087,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                     : "Your personalized fame score and detailed analysis"}
                 </p>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    setDownloadingId("fameScore");
                     void generateDownload(
                       "fameScore",
                       `${personalInfo.name || quizData?.name || "Creator"}_Fame_Score_Report_${language}.pdf`,
-                    )
-                  }
-                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all"
+                    );
+                  }}
+                  disabled={downloadingId === "fameScore"}
+                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Download className="w-4 h-4 inline mr-2" />
-                  {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                  {downloadingId === "fameScore"
+                    ? language === "hindi"
+                      ? "तैयार किया जा रहा है..."
+                      : "Preparing..."
+                    : language === "hindi"
+                      ? "डाउनलोड करें"
+                      : "Download"}
                 </button>
               </div>
 
@@ -1047,16 +1121,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                     : "Your professional media kit for brands"}
                 </p>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    setDownloadingId("mediaKit");
                     void generateDownload(
                       "mediaKit",
                       `${personalInfo.name || quizData?.name || "Creator"}_Media_Kit_${language}.pdf`,
-                    )
-                  }
-                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all"
+                    );
+                  }}
+                  disabled={downloadingId === "mediaKit"}
+                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Download className="w-4 h-4 inline mr-2" />
-                  {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                  {downloadingId === "mediaKit"
+                    ? language === "hindi"
+                      ? "तैयार किया जा रहा है..."
+                      : "Preparing..."
+                    : language === "hindi"
+                      ? "डाउनलोड करें"
+                      : "Download"}
                 </button>
               </div>
 
@@ -1108,16 +1190,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                   </div>
                 </div>
                 <button
-                  onClick={() =>
+                  onClick={() => {
+                    setDownloadingId("growthStrategy");
                     void generateDownload(
                       "growthStrategy",
                       `${personalInfo.name || quizData?.name || "Creator"}_Growth_Strategy_${language}.pdf`,
-                    )
-                  }
-                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all"
+                    );
+                  }}
+                  disabled={downloadingId === "growthStrategy"}
+                  className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Download className="w-4 h-4 inline mr-2" />
-                  {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                  {downloadingId === "growthStrategy"
+                    ? language === "hindi"
+                      ? "तैयार किया जा रहा है..."
+                      : "Preparing..."
+                    : language === "hindi"
+                      ? "डाउनलोड करें"
+                      : "Download"}
                 </button>
               </div>
             </div>
@@ -1153,16 +1243,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                       : "Calculate real-time earnings potential based on your follower count & niche"}
                   </p>
                   <button
-                    onClick={() =>
+                    onClick={() => {
+                      setDownloadingId("monetizationCalculator");
                       void generateDownload(
                         "monetizationCalculator",
                         `${personalInfo.name || quizData?.name || "Creator"}_Monetization_Calculator_${language}.pdf`,
-                      )
-                    }
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                      );
+                    }}
+                    disabled={downloadingId === "monetizationCalculator"}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Download className="w-4 h-4 inline mr-2" />
-                    {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                    {downloadingId === "monetizationCalculator"
+                      ? language === "hindi"
+                        ? "तैयार किया जा रहा है..."
+                        : "Preparing..."
+                      : language === "hindi"
+                        ? "डाउनलोड करें"
+                        : "Download"}
                   </button>
                 </div>
 
@@ -1178,16 +1276,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                       : "The same tracking system used by million-follower creators. Boost your ROI by up to 300%."}
                   </p>
                   <button
-                    onClick={() =>
+                    onClick={() => {
+                      setDownloadingId("analyticsTracker");
                       void generateDownload(
                         "analyticsTracker",
                         `${personalInfo.name || quizData?.name || "Creator"}_Analytics_Tracker_${language}.pdf`,
-                      )
-                    }
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                      );
+                    }}
+                    disabled={downloadingId === "analyticsTracker"}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Download className="w-4 h-4 inline mr-2" />
-                    {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                    {downloadingId === "analyticsTracker"
+                      ? language === "hindi"
+                        ? "तैयार किया जा रहा है..."
+                        : "Preparing..."
+                      : language === "hindi"
+                        ? "डाउनलोड करें"
+                        : "Download"}
                   </button>
                 </div>
               </div>
