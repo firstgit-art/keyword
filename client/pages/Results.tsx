@@ -244,6 +244,7 @@ export default function Results() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [formErrors, setFormErrors] = useState<{ [key: string]: string }>({});
   const [products, setProducts] = useState<any[]>([]);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
 
   const t = sanitizeDeep(languages[language]);
 
