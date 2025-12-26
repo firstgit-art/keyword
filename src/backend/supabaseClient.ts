@@ -1,7 +1,17 @@
-import { createClient } from '@supabase/supabase-js';
-
-// Store these in your .env.local for security
-const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL!;
-const SUPABASE_ANON_KEY = process.env.REACT_APP_SUPABASE_ANON_KEY!;
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// DEPRECATED: This file is no longer used.
+// 
+// Please use the primary Supabase client from:
+// ➜ client/lib/supabase.ts
+// 
+// This consolidated client provides:
+// - Proper environment variable validation
+// - Error handling and fallbacks
+// - Database helper functions (dbHelpers)
+// - Authentication helpers (authHelpers)
+// 
+// NOTE: The environment variable names were incorrect in this file.
+// Use VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY (not REACT_APP_*)
+// 
+// Migration:
+// Change: import { supabase } from '@/backend/supabaseClient'
+// To:     import { supabase, dbHelpers, authHelpers } from '@/lib/supabase'
