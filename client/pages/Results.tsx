@@ -1237,16 +1237,24 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                       : "The same tracking system used by million-follower creators. Boost your ROI by up to 300%."}
                   </p>
                   <button
-                    onClick={() =>
+                    onClick={() => {
+                      setDownloadingId("analyticsTracker");
                       void generateDownload(
                         "analyticsTracker",
                         `${personalInfo.name || quizData?.name || "Creator"}_Analytics_Tracker_${language}.pdf`,
-                      )
-                    }
-                    className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors"
+                      );
+                    }}
+                    disabled={downloadingId === "analyticsTracker"}
+                    className="bg-purple-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-purple-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <Download className="w-4 h-4 inline mr-2" />
-                    {language === "hindi" ? "डाउनलोड करें" : "Download"}
+                    {downloadingId === "analyticsTracker"
+                      ? language === "hindi"
+                        ? "तैयार किया जा रहा है..."
+                        : "Preparing..."
+                      : language === "hindi"
+                        ? "डाउनलोड करें"
+                        : "Download"}
                   </button>
                 </div>
               </div>
