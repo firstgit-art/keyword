@@ -9534,27 +9534,38 @@ function splitLongWord(
   fontSize: number,
   maxWidth: number,
 ): string[] {
-  const segments: string[] = [];
-  let remaining = word;
+  try {
+    const segments: string[] = [];
+    let remaining = word;
 
-  while (remaining.length > 0) {
-    let sliceLength = remaining.length;
+    while (remaining.length > 0) {
+      let sliceLength = remaining.length;
 
-    while (sliceLength > 0) {
-      const segment = remaining.slice(0, sliceLength);
-      if (font.widthOfTextAtSize(segment, fontSize) <= maxWidth) {
-        segments.push(segment);
-        remaining = remaining.slice(sliceLength);
-        break;
+      while (sliceLength > 0) {
+        try {
+          const segment = remaining.slice(0, sliceLength);
+          if (font.widthOfTextAtSize(segment, fontSize) <= maxWidth) {
+            segments.push(segment);
+            remaining = remaining.slice(sliceLength);
+            break;
+          }
+        } catch {
+          // If width calculation fails for this segment, try shorter
+        }
+        sliceLength -= 1;
       }
-      sliceLength -= 1;
+
+      if (sliceLength === 0) {
+        // If we can't fit even one character, still add it to avoid infinite loop
+        segments.push(remaining.charAt(0));
+        remaining = remaining.slice(1);
+      }
     }
 
-    if (sliceLength === 0) {
-      segments.push(remaining.charAt(0));
-      remaining = remaining.slice(1);
-    }
+    return segments.length > 0 ? segments : [word]; // Always return something
+  } catch (error) {
+    console.error("Error in splitLongWord:", error);
+    // Fallback: return the word as-is, even if it's too long
+    return [word];
   }
-
-  return segments;
 }
