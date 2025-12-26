@@ -9375,8 +9375,9 @@ export async function downloadFile(
     const maxWidth = pageSize.width - margin * 2;
     let yPosition = pageSize.height - margin;
 
-    // Process content
-    const normalizedContent = content.replace(/\r\n/g, "\n");
+    // Sanitize and process content
+    const sanitizedContent = sanitizeContentForPDF(content);
+    const normalizedContent = sanitizedContent.replace(/\r\n/g, "\n");
     const paragraphs = normalizedContent.split("\n");
 
     for (const paragraph of paragraphs) {
