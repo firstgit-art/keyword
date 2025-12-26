@@ -7,40 +7,68 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 const isValidUrl = (url: string | undefined): boolean => {
   if (!url) return false;
   if (typeof url !== "string") return false;
-  if (url.includes("supabase.co") && url.length > 20) return true;
-  return false;
+  // Must be a valid Supabase URL
+  // Format: https://[project-ref].supabase.co
+  if (!url.startsWith("https://")) return false;
+  if (!url.includes("supabase.co")) return false;
+  if (url.length < 30) return false; // Real URLs are longer
+  // Check if it looks like a real project ref (alphanumeric + hyphens)
+  const projectRef = url.split("//")[1]?.split(".")[0];
+  if (!projectRef || projectRef.length < 15) return false;
+  return true;
 };
 
 const isValidKey = (key: string | undefined): boolean => {
   if (!key) return false;
   if (typeof key !== "string") return false;
   if (key === "your-anon-key") return false;
-  if (key.length < 10) return false; // Real Supabase keys are much longer
+  // Supabase anon keys are JWT tokens, much longer than 10 chars
+  if (key.length < 30) return false;
+  // Should contain JWT structure (parts separated by dots)
+  if (!key.includes(".")) return false;
+  const parts = key.split(".");
+  if (parts.length !== 3) return false; // JWT has 3 parts
   return true;
 };
 
 // Validate environment variables
-if (!isValidUrl(supabaseUrl)) {
-  console.warn(
-    "⚠️ Supabase URL not configured. Some features will be disabled.",
-  );
-  console.log("Please set VITE_SUPABASE_URL in your environment variables");
-}
+const urlValid = isValidUrl(supabaseUrl);
+const keyValid = isValidKey(supabaseAnonKey);
 
-if (!isValidKey(supabaseAnonKey)) {
+if (!urlValid) {
   console.warn(
-    "⚠️ Supabase anon key not configured. Some features will be disabled.",
+    "⚠️ Supabase URL not configured or invalid. All features will use local defaults.",
   );
   console.log(
-    "Please set VITE_SUPABASE_ANON_KEY in your environment variables",
+    "To enable Supabase, set VITE_SUPABASE_URL=https://[project].supabase.co",
   );
 }
 
-// Create client only if we have valid credentials
-export const supabase =
-  isValidUrl(supabaseUrl) && isValidKey(supabaseAnonKey)
-    ? createClient(supabaseUrl, supabaseAnonKey)
-    : null;
+if (!keyValid) {
+  console.warn(
+    "⚠️ Supabase anon key not configured or invalid. All features will use local defaults.",
+  );
+  console.log(
+    "To enable Supabase, set VITE_SUPABASE_ANON_KEY=<your-valid-jwt-key>",
+  );
+}
+
+// Create client only if we have BOTH valid credentials
+let supabaseClient: any = null;
+if (urlValid && keyValid) {
+  try {
+    supabaseClient = createClient(supabaseUrl!, supabaseAnonKey!);
+    console.log("✅ Supabase initialized successfully");
+  } catch (error) {
+    console.error(
+      "❌ Failed to initialize Supabase client:",
+      error instanceof Error ? error.message : String(error),
+    );
+    supabaseClient = null;
+  }
+}
+
+export const supabase = supabaseClient;
 
 // Helper to check if Supabase is configured
 export const isSupabaseConfigured = () => {
