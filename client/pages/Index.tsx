@@ -579,6 +579,34 @@ export default function Index() {
         </div>
       </header>
 
+      {/* Launch Promo Banner */}
+      {showPromo && (
+        <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white py-4 px-4 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full mix-blend-multiply filter blur-3xl"></div>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full mix-blend-multiply filter blur-3xl"></div>
+          </div>
+
+          <div className="container mx-auto relative z-10 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xl md:text-2xl font-bold mb-1">
+                {t.promo.message}
+              </h3>
+              <p className="text-sm md:text-base opacity-90">
+                {t.promo.subtitle}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowPromo(false)}
+              className="flex-shrink-0 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors"
+              aria-label="Close promo banner"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <main className="relative overflow-hidden">
         {/* Background Pattern */}
