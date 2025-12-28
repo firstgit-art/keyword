@@ -1252,7 +1252,10 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
 
               <div className="space-y-8">
                 {productConfigs.map((product) => (
-                  <div key={product.id} className="border-l-4 border-indigo-500 pl-6">
+                  <div
+                    key={product.id}
+                    className="border-l-4 border-indigo-500 pl-6"
+                  >
                     <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
                       <Gift className="w-5 h-5 text-indigo-600" />
                       {product.name}
@@ -1278,7 +1281,9 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                                   download.id,
                                 );
                               }}
-                              disabled={downloadingId === `${product.id}-${download.id}`}
+                              disabled={
+                                downloadingId === `${product.id}-${download.id}`
+                              }
                               className="w-full bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <Download className="w-3 h-3 inline mr-1" />
@@ -1295,7 +1300,9 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                       </div>
                     ) : (
                       <p className="text-gray-500 text-sm italic">
-                        {language === "hindi" ? "कोई डाउनलोड उपलब्ध नहीं" : "No downloads available"}
+                        {language === "hindi"
+                          ? "कोई डाउनलोड उपलब्ध नहीं"
+                          : "No downloads available"}
                       </p>
                     )}
                   </div>

@@ -9364,69 +9364,76 @@ export async function downloadFile(
     }
 
     // Wrap PDF generation in a timeout to prevent hanging
-    const generatePDFWithTimeout = new Promise<Uint8Array>((resolve, reject) => {
-      const timeoutId = setTimeout(
-        () => reject(new Error("PDF generation timeout - content too large")),
-        30000 // 30 second timeout
-      );
+    const generatePDFWithTimeout = new Promise<Uint8Array>(
+      (resolve, reject) => {
+        const timeoutId = setTimeout(
+          () => reject(new Error("PDF generation timeout - content too large")),
+          30000, // 30 second timeout
+        );
 
-      (async () => {
-        try {
-          // Create PDF document
-          const pdfDoc = await PDFDocument.create();
-          const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-          const fontSize = 12;
-          const lineHeight = fontSize * 1.4;
-          const margin = 48;
+        (async () => {
+          try {
+            // Create PDF document
+            const pdfDoc = await PDFDocument.create();
+            const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+            const fontSize = 12;
+            const lineHeight = fontSize * 1.4;
+            const margin = 48;
 
-          let page = pdfDoc.addPage();
-          let pageSize = page.getSize();
-          const maxWidth = pageSize.width - margin * 2;
-          let yPosition = pageSize.height - margin;
+            let page = pdfDoc.addPage();
+            let pageSize = page.getSize();
+            const maxWidth = pageSize.width - margin * 2;
+            let yPosition = pageSize.height - margin;
 
-          // Sanitize and process content
-          const sanitizedContent = sanitizeContentForPDF(content);
-          const normalizedContent = sanitizedContent.replace(/\r\n/g, "\n");
-          const paragraphs = normalizedContent.split("\n");
+            // Sanitize and process content
+            const sanitizedContent = sanitizeContentForPDF(content);
+            const normalizedContent = sanitizedContent.replace(/\r\n/g, "\n");
+            const paragraphs = normalizedContent.split("\n");
 
-          for (const paragraph of paragraphs) {
-            const lines = wrapTextToLines(paragraph, font, fontSize, maxWidth);
+            for (const paragraph of paragraphs) {
+              const lines = wrapTextToLines(
+                paragraph,
+                font,
+                fontSize,
+                maxWidth,
+              );
 
-            if (lines.length === 0) {
-              yPosition -= lineHeight;
-              continue;
-            }
-
-            for (const line of lines) {
-              if (yPosition < margin) {
-                page = pdfDoc.addPage();
-                pageSize = page.getSize();
-                yPosition = pageSize.height - margin;
+              if (lines.length === 0) {
+                yPosition -= lineHeight;
+                continue;
               }
 
-              page.drawText(line, {
-                x: margin,
-                y: yPosition,
-                size: fontSize,
-                font,
-              });
+              for (const line of lines) {
+                if (yPosition < margin) {
+                  page = pdfDoc.addPage();
+                  pageSize = page.getSize();
+                  yPosition = pageSize.height - margin;
+                }
 
-              yPosition -= lineHeight;
+                page.drawText(line, {
+                  x: margin,
+                  y: yPosition,
+                  size: fontSize,
+                  font,
+                });
+
+                yPosition -= lineHeight;
+              }
+
+              yPosition -= lineHeight * 0.5;
             }
 
-            yPosition -= lineHeight * 0.5;
+            // Save and download
+            const pdfBytes = await pdfDoc.save();
+            clearTimeout(timeoutId);
+            resolve(pdfBytes);
+          } catch (error) {
+            clearTimeout(timeoutId);
+            reject(error);
           }
-
-          // Save and download
-          const pdfBytes = await pdfDoc.save();
-          clearTimeout(timeoutId);
-          resolve(pdfBytes);
-        } catch (error) {
-          clearTimeout(timeoutId);
-          reject(error);
-        }
-      })();
-    });
+        })();
+      },
+    );
 
     const pdfBytes = await generatePDFWithTimeout;
 
