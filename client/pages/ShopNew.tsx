@@ -363,15 +363,6 @@ function ShopNew() {
     });
   };
 
-  const toggleProduct = (productId: string) => {
-    const product = products.find((item) => item.id === productId);
-    if (!product) {
-      return;
-    }
-    toggleProductAvailability(productId, !product.isEnabled);
-    setProducts(getAllProducts());
-  };
-
   const isProductPurchased = (productId: string) => {
     return (
       purchasedProducts.some((purchase) => purchase.id === productId) ||
