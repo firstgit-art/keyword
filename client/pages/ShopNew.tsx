@@ -228,8 +228,6 @@ function ShopNew() {
         "Thank you for your purchase! Your products are ready for download.",
       backToShop: "Back to Shop",
       recentHeadline: "Creators who just grabbed their kit",
-      adminToggleShow: "Open Admin Panel",
-      adminToggleHide: "Hide Admin Panel",
       instamojoNote:
         "After paying with Instamojo, please return and click ‘Download’ to access your product.",
       instamojoNoteShort:
