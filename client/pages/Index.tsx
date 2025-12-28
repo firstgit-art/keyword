@@ -491,6 +491,35 @@ export default function Index() {
     return saved || "english";
   });
   const [showLegalModal, setShowLegalModal] = useState<string | null>(null);
+  const [showPromo, setShowPromo] = useState(true);
+
+  // Check if promo should be shown (within 45 days)
+  useEffect(() => {
+    const promoStartDate = localStorage.getItem("famechase-promo-start-date");
+
+    if (!promoStartDate) {
+      // First time - set the start date
+      localStorage.setItem(
+        "famechase-promo-start-date",
+        new Date().toISOString()
+      );
+      setShowPromo(true);
+    } else {
+      // Check if 45 days have passed
+      const startDate = new Date(promoStartDate);
+      const currentDate = new Date();
+      const daysPassed = Math.floor(
+        (currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
+      if (daysPassed >= 45) {
+        setShowPromo(false);
+      } else {
+        setShowPromo(true);
+      }
+    }
+  }, []);
+
   // Sanitize translations to remove stray symbols
   const t = sanitizeDeep(translations[language]);
   const legal = legalContent[language];
