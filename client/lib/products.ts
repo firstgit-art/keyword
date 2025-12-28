@@ -9363,53 +9363,79 @@ export async function downloadFile(
       return { success: false, error: "Invalid file name" };
     }
 
-    // Create PDF document
-    const pdfDoc = await PDFDocument.create();
-    const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
-    const fontSize = 12;
-    const lineHeight = fontSize * 1.4;
-    const margin = 48;
+    // Wrap PDF generation in a timeout to prevent hanging
+    const generatePDFWithTimeout = new Promise<Uint8Array>(
+      (resolve, reject) => {
+        const timeoutId = setTimeout(
+          () => reject(new Error("PDF generation timeout - content too large")),
+          30000, // 30 second timeout
+        );
 
-    let page = pdfDoc.addPage();
-    let pageSize = page.getSize();
-    const maxWidth = pageSize.width - margin * 2;
-    let yPosition = pageSize.height - margin;
+        (async () => {
+          try {
+            // Create PDF document
+            const pdfDoc = await PDFDocument.create();
+            const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+            const fontSize = 12;
+            const lineHeight = fontSize * 1.4;
+            const margin = 48;
 
-    // Sanitize and process content
-    const sanitizedContent = sanitizeContentForPDF(content);
-    const normalizedContent = sanitizedContent.replace(/\r\n/g, "\n");
-    const paragraphs = normalizedContent.split("\n");
+            let page = pdfDoc.addPage();
+            let pageSize = page.getSize();
+            const maxWidth = pageSize.width - margin * 2;
+            let yPosition = pageSize.height - margin;
 
-    for (const paragraph of paragraphs) {
-      const lines = wrapTextToLines(paragraph, font, fontSize, maxWidth);
+            // Sanitize and process content
+            const sanitizedContent = sanitizeContentForPDF(content);
+            const normalizedContent = sanitizedContent.replace(/\r\n/g, "\n");
+            const paragraphs = normalizedContent.split("\n");
 
-      if (lines.length === 0) {
-        yPosition -= lineHeight;
-        continue;
-      }
+            for (const paragraph of paragraphs) {
+              const lines = wrapTextToLines(
+                paragraph,
+                font,
+                fontSize,
+                maxWidth,
+              );
 
-      for (const line of lines) {
-        if (yPosition < margin) {
-          page = pdfDoc.addPage();
-          pageSize = page.getSize();
-          yPosition = pageSize.height - margin;
-        }
+              if (lines.length === 0) {
+                yPosition -= lineHeight;
+                continue;
+              }
 
-        page.drawText(line, {
-          x: margin,
-          y: yPosition,
-          size: fontSize,
-          font,
-        });
+              for (const line of lines) {
+                if (yPosition < margin) {
+                  page = pdfDoc.addPage();
+                  pageSize = page.getSize();
+                  yPosition = pageSize.height - margin;
+                }
 
-        yPosition -= lineHeight;
-      }
+                page.drawText(line, {
+                  x: margin,
+                  y: yPosition,
+                  size: fontSize,
+                  font,
+                });
 
-      yPosition -= lineHeight * 0.5;
-    }
+                yPosition -= lineHeight;
+              }
 
-    // Save and download
-    const pdfBytes = await pdfDoc.save();
+              yPosition -= lineHeight * 0.5;
+            }
+
+            // Save and download
+            const pdfBytes = await pdfDoc.save();
+            clearTimeout(timeoutId);
+            resolve(pdfBytes);
+          } catch (error) {
+            clearTimeout(timeoutId);
+            reject(error);
+          }
+        })();
+      },
+    );
+
+    const pdfBytes = await generatePDFWithTimeout;
 
     // Verify we have valid PDF bytes
     if (!pdfBytes || pdfBytes.length === 0) {
