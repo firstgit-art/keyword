@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   ArrowRight,
   Users,
@@ -32,6 +32,11 @@ const languages: Language[] = [
 
 const translations = {
   english: {
+    promo: {
+      message: "🚀 Launch Promo: All Premium Products Are FREE for 45 Days!",
+      subtitle:
+        "Limited time offer. Get lifetime access to all creator tools absolutely free.",
+    },
     header: {
       takeQuiz: "Take Quiz",
       shop: "Shop",
@@ -180,6 +185,12 @@ const translations = {
     },
   },
   hindi: {
+    promo: {
+      message:
+        "🚀 लॉन्च प्रोमो: सभी प्रीमियम प्रोडक्ट्स 45 दिन के लिए बिल्कुल FREE!",
+      subtitle:
+        "सीमित समय का ऑफर। सभी क्रिएटर टूल्स तक आजीवन एक्सेस बिल्कुल मुफ्त पाएं।",
+    },
     header: {
       takeQuiz: "क्विज़ लें",
       shop: "खरीदारी",
@@ -483,6 +494,35 @@ export default function Index() {
     return saved || "english";
   });
   const [showLegalModal, setShowLegalModal] = useState<string | null>(null);
+  const [showPromo, setShowPromo] = useState(true);
+
+  // Check if promo should be shown (within 45 days)
+  useEffect(() => {
+    const promoStartDate = localStorage.getItem("famechase-promo-start-date");
+
+    if (!promoStartDate) {
+      // First time - set the start date
+      localStorage.setItem(
+        "famechase-promo-start-date",
+        new Date().toISOString(),
+      );
+      setShowPromo(true);
+    } else {
+      // Check if 45 days have passed
+      const startDate = new Date(promoStartDate);
+      const currentDate = new Date();
+      const daysPassed = Math.floor(
+        (currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
+      );
+
+      if (daysPassed >= 45) {
+        setShowPromo(false);
+      } else {
+        setShowPromo(true);
+      }
+    }
+  }, []);
+
   // Sanitize translations to remove stray symbols
   const t = sanitizeDeep(translations[language]);
   const legal = legalContent[language];
@@ -541,6 +581,34 @@ export default function Index() {
           </nav>
         </div>
       </header>
+
+      {/* Launch Promo Banner */}
+      {showPromo && (
+        <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 text-white py-4 px-4 relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 left-0 w-40 h-40 bg-white rounded-full mix-blend-multiply filter blur-3xl"></div>
+            <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full mix-blend-multiply filter blur-3xl"></div>
+          </div>
+
+          <div className="container mx-auto relative z-10 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex-1 min-w-0">
+              <h3 className="text-xl md:text-2xl font-bold mb-1">
+                {t.promo.message}
+              </h3>
+              <p className="text-sm md:text-base opacity-90">
+                {t.promo.subtitle}
+              </p>
+            </div>
+            <button
+              onClick={() => setShowPromo(false)}
+              className="flex-shrink-0 bg-white/20 hover:bg-white/30 text-white p-2 rounded-full transition-colors"
+              aria-label="Close promo banner"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <main className="relative overflow-hidden">

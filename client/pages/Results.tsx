@@ -946,16 +946,12 @@ ${language === "hindi" ? "⏰ लास्ट अपडेटे:" : "⏰ LAST U
 ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू:" : "💡 NEXT REVIEW:"} ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}`;
     }
 
-    // Show loading toast
-    const loadingToast = toast.loading("Generating your file...");
-
     try {
       // Generate and download file
       const result = await downloadFile(content, fileName);
 
       if (result.success) {
-        // Dismiss loading toast and show success
-        toast.dismiss(loadingToast);
+        // Show success message
         toast.success("Download started! Check your downloads folder.", {
           duration: 3000,
         });
@@ -1011,7 +1007,6 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
         }
       } else {
         // Download failed
-        toast.dismiss(loadingToast);
         toast.error(
           result.error || "Failed to generate download. Please try again.",
           { duration: 4000 },
@@ -1020,7 +1015,6 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
       }
     } catch (error) {
       // Unexpected error
-      toast.dismiss(loadingToast);
       const errorMessage =
         error instanceof Error ? error.message : "An unexpected error occurred";
       toast.error(`Download failed: ${errorMessage}`, { duration: 4000 });
