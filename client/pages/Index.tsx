@@ -34,7 +34,8 @@ const translations = {
   english: {
     promo: {
       message: "🚀 Launch Promo: All Premium Products Are FREE for 45 Days!",
-      subtitle: "Limited time offer. Get lifetime access to all creator tools absolutely free.",
+      subtitle:
+        "Limited time offer. Get lifetime access to all creator tools absolutely free.",
     },
     header: {
       takeQuiz: "Take Quiz",
@@ -185,8 +186,10 @@ const translations = {
   },
   hindi: {
     promo: {
-      message: "🚀 लॉन्च प्रोमो: सभी प्रीमियम प्रोडक्ट्स 45 दिन के लिए बिल्कुल FREE!",
-      subtitle: "सीमित समय का ऑफर। सभी क्रिएटर टूल्स तक आजीवन एक्सेस बिल्कुल मुफ्त पाएं।",
+      message:
+        "🚀 लॉन्च प्रोमो: सभी प्रीमियम प्रोडक्ट्स 45 दिन के लिए बिल्कुल FREE!",
+      subtitle:
+        "सीमित समय का ऑफर। सभी क्रिएटर टूल्स तक आजीवन एक्सेस बिल्कुल मुफ्त पाएं।",
     },
     header: {
       takeQuiz: "क्विज़ लें",
@@ -501,7 +504,7 @@ export default function Index() {
       // First time - set the start date
       localStorage.setItem(
         "famechase-promo-start-date",
-        new Date().toISOString()
+        new Date().toISOString(),
       );
       setShowPromo(true);
     } else {
@@ -509,7 +512,7 @@ export default function Index() {
       const startDate = new Date(promoStartDate);
       const currentDate = new Date();
       const daysPassed = Math.floor(
-        (currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+        (currentDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
       );
 
       if (daysPassed >= 45) {

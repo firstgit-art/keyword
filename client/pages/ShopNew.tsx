@@ -57,9 +57,9 @@ function ShopNew() {
     city: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [purchasedProducts, setPurchasedProducts] = useState<PurchasedProduct[]>(
-    [],
-  );
+  const [purchasedProducts, setPurchasedProducts] = useState<
+    PurchasedProduct[]
+  >([]);
   const [showSuccessPage, setShowSuccessPage] = useState<string | null>(null);
   const [quizData, setQuizData] = useState<any>(null);
 
@@ -113,11 +113,14 @@ function ShopNew() {
     };
 
     addRecentPurchase();
-    const interval = setInterval(() => {
-      if (Math.random() > 0.3) {
-        addRecentPurchase();
-      }
-    }, Math.random() * 15000 + 15000);
+    const interval = setInterval(
+      () => {
+        if (Math.random() > 0.3) {
+          addRecentPurchase();
+        }
+      },
+      Math.random() * 15000 + 15000,
+    );
 
     return () => clearInterval(interval);
   }, []);
@@ -262,8 +265,7 @@ function ShopNew() {
       recentHeadline: "अभी-अभी जिन्होंने अपना किट लिया",
       instamojoNote:
         "Instamojo से भुगतान करने के बाद यहाँ लौटें और ‘Download’ पर क्लिक करें।",
-      instamojoNoteShort:
-        "भुगतान के बाद वापस आकर ‘Download’ पर क्लिक करें।",
+      instamojoNoteShort: "भुगतान के बाद वापस आकर ‘Download’ पर क्लिक करें।",
     },
   } as const;
 
@@ -294,7 +296,10 @@ function ShopNew() {
     setShowSuccessPage(productId);
   };
 
-  const handleDownload = async (productId: string | null, downloadId: string) => {
+  const handleDownload = async (
+    productId: string | null,
+    downloadId: string,
+  ) => {
     if (!productId) {
       return;
     }
@@ -342,9 +347,12 @@ function ShopNew() {
       const product = getProductConfig(productId);
       if (product) {
         product.downloads.forEach((download) => {
-          setTimeout(() => {
-            void handleDownload(productId, download.id);
-          }, (index + 1) * 300);
+          setTimeout(
+            () => {
+              void handleDownload(productId, download.id);
+            },
+            (index + 1) * 300,
+          );
         });
       }
     });
@@ -437,7 +445,9 @@ function ShopNew() {
                         {download.name}
                       </h3>
                       <button
-                        onClick={() => void handleDownload(showSuccessPage, download.id)}
+                        onClick={() =>
+                          void handleDownload(showSuccessPage, download.id)
+                        }
                         className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all"
                       >
                         <Download className="w-4 h-4 inline mr-2" />
@@ -544,7 +554,6 @@ function ShopNew() {
           </div>
         )}
 
-
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
             {currentLang.premiumTools}
@@ -588,17 +597,23 @@ function ShopNew() {
                   <div className="flex flex-col lg:flex-row gap-8">
                     <div className="flex-1">
                       <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                        {language === "hindi" && product.id === "complete-growth-kit"
+                        {language === "hindi" &&
+                        product.id === "complete-growth-kit"
                           ? "कम्प्लीट क्रिएटर ग्रोथ किट"
-                          : language === "hindi" && product.id === "reels-mastery"
+                          : language === "hindi" &&
+                              product.id === "reels-mastery"
                             ? "इंस्टाग्राम रील्स मास्टरी कोर्स"
-                            : language === "hindi" && product.id === "brand-masterclass"
+                            : language === "hindi" &&
+                                product.id === "brand-masterclass"
                               ? "ब्रांड कोलैबोरेशन मास्टरक्लास"
-                              : language === "hindi" && product.id === "complete-bundle"
+                              : language === "hindi" &&
+                                  product.id === "complete-bundle"
                                 ? "कम्प्लीट क्रिएटर बंडल"
                                 : product.name}
                       </h3>
-                      <p className="text-gray-600 mb-4">{product.description}</p>
+                      <p className="text-gray-600 mb-4">
+                        {product.description}
+                      </p>
 
                       <div className="flex items-center gap-4 mb-4">
                         <div className="flex items-center gap-1">
@@ -653,7 +668,7 @@ function ShopNew() {
                             </div>
                           )}
                           <div className="text-sm text-blue-600 font-medium mt-2">
-                            💰{' '}
+                            💰{" "}
                             {language === "hindi"
                               ? "प्रोमो कोड से अतिरिक्त छूट प्राप्त करें"
                               : "Get extra discount with promo codes"}
@@ -740,7 +755,9 @@ function ShopNew() {
                 to="/quiz"
                 className="w-full bg-gradient-to-r from-neon-green to-electric-blue text-black font-bold py-3 px-6 rounded-xl hover:shadow-lg transition-all inline-block"
               >
-                {language === "hindi" ? "🎯 अभी क्विज़ लें" : "🎯 Take the Quiz Now"}
+                {language === "hindi"
+                  ? "🎯 अभी क्विज़ लें"
+                  : "🎯 Take the Quiz Now"}
               </Link>
               <button
                 onClick={() => setShowQuizRequiredPopup(false)}
@@ -768,10 +785,17 @@ function ShopNew() {
                   type="text"
                   value={customerInfo.name}
                   onChange={(event) =>
-                    setCustomerInfo({ ...customerInfo, name: event.target.value })
+                    setCustomerInfo({
+                      ...customerInfo,
+                      name: event.target.value,
+                    })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-900"
-                  placeholder={language === "hindi" ? "अपना नाम लिखें" : "Enter your full name"}
+                  placeholder={
+                    language === "hindi"
+                      ? "अपना नाम लिखें"
+                      : "Enter your full name"
+                  }
                 />
               </div>
               <div>
@@ -782,7 +806,10 @@ function ShopNew() {
                   type="email"
                   value={customerInfo.email}
                   onChange={(event) =>
-                    setCustomerInfo({ ...customerInfo, email: event.target.value })
+                    setCustomerInfo({
+                      ...customerInfo,
+                      email: event.target.value,
+                    })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-900"
                   placeholder="your@email.com"
@@ -796,7 +823,10 @@ function ShopNew() {
                   type="tel"
                   value={customerInfo.phone}
                   onChange={(event) =>
-                    setCustomerInfo({ ...customerInfo, phone: event.target.value })
+                    setCustomerInfo({
+                      ...customerInfo,
+                      phone: event.target.value,
+                    })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-900"
                   placeholder="+91 9876543210"
@@ -810,24 +840,35 @@ function ShopNew() {
                   type="text"
                   value={customerInfo.city}
                   onChange={(event) =>
-                    setCustomerInfo({ ...customerInfo, city: event.target.value })
+                    setCustomerInfo({
+                      ...customerInfo,
+                      city: event.target.value,
+                    })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-900"
-                  placeholder={language === "hindi" ? "शहर लिखें" : "Enter your city"}
+                  placeholder={
+                    language === "hindi" ? "शहर लिखें" : "Enter your city"
+                  }
                 />
               </div>
 
               <div className="border-t pt-4">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {language === "hindi" ? "प्रोमो कोड (वैकल्पिक)" : "Promo Code (Optional)"}
+                  {language === "hindi"
+                    ? "प्रोमो कोड (वैकल्पिक)"
+                    : "Promo Code (Optional)"}
                 </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={promoCode}
-                    onChange={(event) => setPromoCode(event.target.value.toUpperCase())}
+                    onChange={(event) =>
+                      setPromoCode(event.target.value.toUpperCase())
+                    }
                     className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-gray-900"
-                    placeholder={language === "hindi" ? "कोड दर्ज करें" : "Enter code"}
+                    placeholder={
+                      language === "hindi" ? "कोड दर्ज करें" : "Enter code"
+                    }
                   />
                   <button
                     type="button"
@@ -839,8 +880,10 @@ function ShopNew() {
                 </div>
                 {appliedDiscount > 0 && (
                   <div className="mt-2 text-green-600 text-sm font-medium">
-                    ✅ {appliedDiscount}%{' '}
-                    {language === "hindi" ? "छूट लागू की गई" : "discount applied"}
+                    ✅ {appliedDiscount}%{" "}
+                    {language === "hindi"
+                      ? "छूट लागू की गई"
+                      : "discount applied"}
                   </div>
                 )}
               </div>
@@ -859,7 +902,8 @@ function ShopNew() {
                 {appliedDiscount > 0 && (
                   <div className="flex justify-between items-center text-green-600">
                     <span>
-                      {language === "hindi" ? "छूट:" : "Discount:"} ({appliedDiscount}%)
+                      {language === "hindi" ? "छूट:" : "Discount:"} (
+                      {appliedDiscount}%)
                     </span>
                     <span>
                       -₹
