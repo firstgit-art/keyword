@@ -39,7 +39,7 @@ import {
 import { toast } from "sonner";
 import { analyzeQuizData } from "../lib/ai-analysis";
 import { supabase, dbHelpers, isSupabaseConfigured } from "@/lib/supabase";
-import { downloadFile } from "@/lib/products";
+import { downloadFile, productConfigs } from "@/lib/products";
 import { sanitizeDeep } from "@/lib/sanitize";
 
 interface QuizData {
