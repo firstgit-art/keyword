@@ -62,7 +62,6 @@ function ShopNew() {
     [],
   );
   const [showSuccessPage, setShowSuccessPage] = useState<string | null>(null);
-  const [showAdminPanel, setShowAdminPanel] = useState(false);
   const [quizData, setQuizData] = useState<any>(null);
 
   useEffect(() => {
@@ -567,56 +566,6 @@ function ShopNew() {
           </div>
         )}
 
-        <div className="flex justify-end mb-6">
-          <button
-            type="button"
-            onClick={() => setShowAdminPanel((prev) => !prev)}
-            className="flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors"
-          >
-            {showAdminPanel ? currentLang.adminToggleHide : currentLang.adminToggleShow}
-          </button>
-        </div>
-
-        {showAdminPanel && (
-          <section className="mb-12 border border-gray-200 rounded-2xl p-6 bg-gray-50">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              {currentLang.adminPanel}
-            </h2>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {productConfigs.map((product) => (
-                <div key={product.id} className="bg-white border border-gray-200 rounded-xl p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-900">
-                        {product.name}
-                      </h3>
-                      <p className="text-sm text-gray-600">
-                        ₹{product.price} • {product.category}
-                      </p>
-                    </div>
-                    <span
-                      className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        product.isEnabled
-                          ? "bg-green-100 text-green-700"
-                          : "bg-gray-200 text-gray-600"
-                      }`}
-                    >
-                      {product.isEnabled
-                        ? currentLang.enabled
-                        : currentLang.disabled}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleProduct(product.id)}
-                    className="w-full bg-gray-900 text-white py-2 rounded-lg text-sm font-semibold hover:bg-gray-800 transition-colors"
-                  >
-                    {currentLang.toggleProduct}
-                  </button>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
 
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
