@@ -946,8 +946,6 @@ ${language === "hindi" ? "⏰ लास्ट अपडेटे:" : "⏰ LAST U
 ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू:" : "💡 NEXT REVIEW:"} ${new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toLocaleDateString()}`;
     }
 
-    // Show loading toast
-    const loadingToast = toast.loading("Generating your file...");
 
     try {
       // Generate and download file
