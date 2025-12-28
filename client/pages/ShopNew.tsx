@@ -16,7 +16,6 @@ import {
 import {
   getAllProducts,
   getProductConfig,
-  toggleProductAvailability,
   generateProductDownload,
   downloadFile,
   type ProductConfig,
