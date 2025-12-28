@@ -268,8 +268,6 @@ function ShopNew() {
         "आपकी खरीदारी के लिए धन्यवाद! आपके प्रोडक्ट्स डाउनलोड के लिए तैयार हैं।",
       backToShop: "शॉप पर वापस जाएं",
       recentHeadline: "अभी-अभी जिन्होंने अपना किट लिया",
-      adminToggleShow: "एडमिन पैनल खोलें",
-      adminToggleHide: "एडमिन पैनल बंद करें",
       instamojoNote:
         "Instamojo से भुगतान करने के बाद यहाँ लौटें और ‘Download’ पर क्लिक करें।",
       instamojoNoteShort:
