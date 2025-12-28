@@ -469,7 +469,22 @@ export default function Results() {
       primaryRatesBase[quizData.primaryPlatform] ||
       primaryRatesBase["Instagram"];
 
-    if (type === "fameScore") {
+    // Handle product-specific downloads
+    if (productId && downloadId) {
+      const product = productConfigs.find((p) => p.id === productId);
+      const download = product?.downloads.find((d) => d.id === downloadId);
+
+      if (download && typeof download.content === "function") {
+        content = download.content(language, {
+          ...quizData,
+          ...personalInfo,
+        });
+      } else if (download && typeof download.content === "string") {
+        content = download.content;
+      } else {
+        content = "Download not found";
+      }
+    } else if (type === "fameScore") {
       content =
         fontSizeIndicator +
         `
