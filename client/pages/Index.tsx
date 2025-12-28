@@ -32,6 +32,10 @@ const languages: Language[] = [
 
 const translations = {
   english: {
+    promo: {
+      message: "🚀 Launch Promo: All Premium Products Are FREE for 45 Days!",
+      subtitle: "Limited time offer. Get lifetime access to all creator tools absolutely free.",
+    },
     header: {
       takeQuiz: "Take Quiz",
       shop: "Shop",
