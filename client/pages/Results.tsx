@@ -387,7 +387,12 @@ export default function Results() {
     }, 100);
   };
 
-  const generateDownload = async (type: string, fileName: string) => {
+  const generateDownload = async (
+    type: string,
+    fileName: string,
+    productId?: string,
+    downloadId?: string,
+  ) => {
     if (!quizData || !analysis) return;
 
     let content = "";
