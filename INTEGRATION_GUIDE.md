@@ -9,13 +9,15 @@ This guide shows how to integrate the AI Agent market research analysis system i
 ### 1. Quiz Submission Flow
 
 **Current Flow:**
+
 ```
 User completes Quiz → Data stored → Results page shown
 ```
 
 **Enhanced Flow:**
+
 ```
-User completes Quiz 
+User completes Quiz
   → Validate data
   → Call /api/ai-agent-analysis (parallel)
   → Store results in Supabase
@@ -25,6 +27,7 @@ User completes Quiz
 ### 2. Results Page Enhancement
 
 The Results page should be enhanced to display:
+
 - **AI-Generated Fame Score**: Powered by market research
 - **Market Trends**: Real-time trends in their niche
 - **Competitive Analysis**: How they compare to top creators
@@ -46,10 +49,10 @@ import { useAIAgentAnalysis } from "@/hooks/useAIAgentAnalysis";
 
 function Quiz() {
   const { analyze } = useAIAgentAnalysis();
-  
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       // 1. Validate quiz data
       if (!quizData.email || !quizData.name) {
@@ -86,7 +89,7 @@ function Quiz() {
         .then((result) => {
           // Store analysis in session or pass via navigation state
           sessionStorage.setItem("aiAnalysis", JSON.stringify(result));
-          
+
           // Store in Supabase if configured
           if (isSupabaseConfigured) {
             dbHelpers.addQuizData({
@@ -99,7 +102,9 @@ function Quiz() {
         .catch((error) => {
           console.error("AI analysis failed:", error);
           // Continue without AI analysis if it fails
-          toast.error("Could not generate market analysis, showing standard results");
+          toast.error(
+            "Could not generate market analysis, showing standard results",
+          );
         });
 
       // 5. Store quiz data and navigate
@@ -490,14 +495,14 @@ npm run dev
 // Example: Add timeout to AI analysis
 const analysisPromise = analyze(aiRequest);
 const timeoutPromise = new Promise((_, reject) =>
-  setTimeout(() => reject(new Error("Analysis timeout")), 30000)
+  setTimeout(() => reject(new Error("Analysis timeout")), 30000),
 );
 
 Promise.race([analysisPromise, timeoutPromise])
-  .then(result => {
+  .then((result) => {
     // Use result
   })
-  .catch(error => {
+  .catch((error) => {
     console.error("Analysis failed:", error);
     // Continue without AI analysis
   });
@@ -523,6 +528,7 @@ The integration gracefully handles errors:
 ## Support
 
 For questions or issues:
+
 - Check the `AI_AGENT_SETUP.md` file for detailed documentation
 - Review the example implementations in the codebase
 - Check server logs for API errors

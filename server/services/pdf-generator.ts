@@ -7,7 +7,7 @@ import path from "path";
  * Generates personalized PDF report with market research insights
  */
 export async function generatePersonalizedPDF(
-  analysis: AIAgentAnalysisResponse
+  analysis: AIAgentAnalysisResponse,
 ): Promise<Buffer> {
   const pdfDoc = await PDFDocument.create();
   const { width, height } = PDFDocument.A4;
@@ -109,7 +109,10 @@ function drawCoverPage(page: PDFPage, analysis: AIAgentAnalysisResponse) {
   });
 }
 
-function drawExecutiveSummary(page: PDFPage, analysis: AIAgentAnalysisResponse) {
+function drawExecutiveSummary(
+  page: PDFPage,
+  analysis: AIAgentAnalysisResponse,
+) {
   const { width, height } = page.getSize();
   let y = height - 40;
 
@@ -252,7 +255,7 @@ function drawMarketResearch(page: PDFPage, analysis: AIAgentAnalysisResponse) {
 
 function drawCompetitiveAnalysis(
   page: PDFPage,
-  analysis: AIAgentAnalysisResponse
+  analysis: AIAgentAnalysisResponse,
 ) {
   const { width, height } = page.getSize();
   let y = height - 40;
@@ -297,7 +300,10 @@ function drawCompetitiveAnalysis(
   });
   y -= 20;
 
-  for (const competitor of analysis.marketResearch.competitorAnalysis.topCompetitors.slice(0, 3)) {
+  for (const competitor of analysis.marketResearch.competitorAnalysis.topCompetitors.slice(
+    0,
+    3,
+  )) {
     page.drawRectangle({
       x: 50,
       y: y - 50,
@@ -320,7 +326,7 @@ function drawCompetitiveAnalysis(
         y: y - 35,
         size: 9,
         color: rgb(0.5, 0.5, 0.5),
-      }
+      },
     );
 
     y -= 60;
@@ -329,7 +335,7 @@ function drawCompetitiveAnalysis(
 
 function drawMonetizationStrategy(
   page: PDFPage,
-  analysis: AIAgentAnalysisResponse
+  analysis: AIAgentAnalysisResponse,
 ) {
   const { width, height } = page.getSize();
   let y = height - 40;
@@ -509,7 +515,7 @@ function drawMediaKitPreview(page: PDFPage, analysis: AIAgentAnalysisResponse) {
       y,
       size: 11,
       color: rgb(0.4, 0.4, 0.4),
-    }
+    },
   );
   y -= 30;
 
@@ -543,12 +549,15 @@ function drawMediaKitPreview(page: PDFPage, analysis: AIAgentAnalysisResponse) {
   y -= 20;
 
   // Footer
-  page.drawText("For more details, visit FameChase.com or email mail@famechase.com", {
-    x: 40,
-    y: 40,
-    size: 9,
-    color: rgb(0.6, 0.6, 0.6),
-  });
+  page.drawText(
+    "For more details, visit FameChase.com or email mail@famechase.com",
+    {
+      x: 40,
+      y: 40,
+      size: 9,
+      color: rgb(0.6, 0.6, 0.6),
+    },
+  );
 }
 
 /**

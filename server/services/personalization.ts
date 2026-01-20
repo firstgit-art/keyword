@@ -34,7 +34,7 @@ export interface PersonalizationProfile {
 export function generatePersonalityFingerprint(
   userId: string,
   creatorProfile: Record<string, unknown>,
-  agentId: string
+  agentId: string,
 ): string {
   const data = JSON.stringify({
     userId,
@@ -44,10 +44,7 @@ export function generatePersonalityFingerprint(
     entropy: crypto.randomBytes(16).toString("hex"),
   });
 
-  const hash = crypto
-    .createHash("sha256")
-    .update(data)
-    .digest("hex");
+  const hash = crypto.createHash("sha256").update(data).digest("hex");
 
   return hash.substring(0, 12);
 }
@@ -65,10 +62,7 @@ export function calculateAdaptationFactors(profile: {
   // Risk tolerance based on current metrics
   const riskTolerance = Math.min(
     10,
-    Math.max(
-      1,
-      (profile.engagementRate * 2 + profile.followers / 50000) / 3
-    )
+    Math.max(1, (profile.engagementRate * 2 + profile.followers / 50000) / 3),
   );
 
   // Time to monetize based on follower count
@@ -77,15 +71,12 @@ export function calculateAdaptationFactors(profile: {
   else if (profile.followers >= 50000) timeToMonetize = "short-term";
 
   // Content quality assessment
-  const contentQuality = Math.min(
-    10,
-    Math.max(1, profile.engagementRate * 5)
-  );
+  const contentQuality = Math.min(10, Math.max(1, profile.engagementRate * 5));
 
   // Community engagement assessment
   const communityEngagement = Math.min(
     10,
-    Math.max(1, profile.engagementRate * 3 + 3)
+    Math.max(1, profile.engagementRate * 3 + 3),
   );
 
   return {
@@ -101,7 +92,7 @@ export function calculateAdaptationFactors(profile: {
  */
 export function generatePersonalizedRecommendations(
   marketResearch: MarketResearchData,
-  personalization: PersonalizationProfile
+  personalization: PersonalizationProfile,
 ): string[] {
   const recommendations: string[] = [];
   const profile = personalization.creatorProfile;
@@ -110,65 +101,67 @@ export function generatePersonalizedRecommendations(
   // High engagement creators
   if (factors.communityEngagement >= 7) {
     recommendations.push(
-      "Your community engagement is strong. Leverage this to launch exclusive membership programs or courses."
+      "Your community engagement is strong. Leverage this to launch exclusive membership programs or courses.",
     );
     recommendations.push(
-      "Consider starting a community Discord or Telegram for deeper connections - monetize with premium tier access."
+      "Consider starting a community Discord or Telegram for deeper connections - monetize with premium tier access.",
     );
   }
 
   // Low follower, high quality content
   if (profile.followers < 50000 && factors.contentQuality >= 6) {
     recommendations.push(
-      "Quality over quantity is your advantage. Target micro-brands that value authentic partnerships over reach."
+      "Quality over quantity is your advantage. Target micro-brands that value authentic partnerships over reach.",
     );
     recommendations.push(
-      "Apply for influencer networks that connect brands seeking niche creators - often offer better rates per engagement."
+      "Apply for influencer networks that connect brands seeking niche creators - often offer better rates per engagement.",
     );
   }
 
   // High follower count
   if (profile.followers >= 100000) {
     recommendations.push(
-      "You have significant reach. Approach major brands directly with professional media kit and case studies."
+      "You have significant reach. Approach major brands directly with professional media kit and case studies.",
     );
     recommendations.push(
-      "Launch your own product line. Your audience size justifies custom merchandise or digital products."
+      "Launch your own product line. Your audience size justifies custom merchandise or digital products.",
     );
   }
 
   // Based on challenges mentioned
   if (profile.challenges.toLowerCase().includes("engagement")) {
     recommendations.push(
-      "Focus on posting frequency optimization - test different posting times and content formats to boost engagement."
+      "Focus on posting frequency optimization - test different posting times and content formats to boost engagement.",
     );
     recommendations.push(
-      "Implement call-to-action strategies consistently - encourage saves, shares, and comments in every post."
+      "Implement call-to-action strategies consistently - encourage saves, shares, and comments in every post.",
     );
   }
 
   if (profile.challenges.toLowerCase().includes("monetization")) {
     recommendations.push(
-      "Start with affiliate marketing of products you genuinely use - lowest barrier to entry for monetization."
+      "Start with affiliate marketing of products you genuinely use - lowest barrier to entry for monetization.",
     );
     recommendations.push(
       `Current market rate for ${profile.niche} creators: ${
         marketResearch.monetizationOpportunities[0]?.estimatedEarnings ||
         "varies"
-      }. Track performance metrics to justify rates.`
+      }. Track performance metrics to justify rates.`,
     );
   }
 
   // Trend-based recommendations
-  const trendRecommendations = marketResearch.trends.slice(0, 2).map((trend) => {
-    if (trend.includes("short-form")) {
-      return `Capitalize on short-form video trend: ${trend}. Increase video content frequency by 30%.`;
-    }
-    if (trend.includes("authenticity")) {
-      return `Lean into authentic storytelling: ${trend}. Share behind-the-scenes content more frequently.`;
-    }
-    return `Trend alert: ${trend}. Adapt your content calendar to include trending formats.`;
-  });
+  const trendRecommendations = marketResearch.trends
+    .slice(0, 2)
+    .map((trend) => {
+      if (trend.includes("short-form")) {
+        return `Capitalize on short-form video trend: ${trend}. Increase video content frequency by 30%.`;
+      }
+      if (trend.includes("authenticity")) {
+        return `Lean into authentic storytelling: ${trend}. Share behind-the-scenes content more frequently.`;
+      }
+      return `Trend alert: ${trend}. Adapt your content calendar to include trending formats.`;
+    });
 
   recommendations.push(...trendRecommendations);
 
@@ -185,7 +178,7 @@ export function generatePersonalizedGrowthPlan(
     goals: string;
     challenges: string;
   },
-  marketResearch: MarketResearchData
+  marketResearch: MarketResearchData,
 ): {
   nextMonth: string[];
   nextQuarter: string[];
@@ -238,7 +231,7 @@ export function calculateUniqueFameScore(
     monthlyViews: number;
   },
   marketResearch: MarketResearchData,
-  personalityFingerprint: string
+  personalityFingerprint: string,
 ): number {
   // Base score calculation
   let score = 0;
@@ -275,21 +268,25 @@ export function generateMarketPosition(
     niche: string;
   },
   marketResearch: MarketResearchData,
-  fameScore: number
+  fameScore: number,
 ): string {
   const positioning = [];
 
   // Positioning based on Fame Score
   if (fameScore >= 80) {
     positioning.push(
-      `You are a TOP TIER creator in the ${profile.niche} space`
+      `You are a TOP TIER creator in the ${profile.niche} space`,
     );
   } else if (fameScore >= 60) {
-    positioning.push(`You are an ESTABLISHED creator in the ${profile.niche} space`);
+    positioning.push(
+      `You are an ESTABLISHED creator in the ${profile.niche} space`,
+    );
   } else if (fameScore >= 40) {
     positioning.push(`You are a GROWING creator in the ${profile.niche} space`);
   } else {
-    positioning.push(`You are an EMERGING creator in the ${profile.niche} space`);
+    positioning.push(
+      `You are an EMERGING creator in the ${profile.niche} space`,
+    );
   }
 
   // Market comparison
@@ -297,15 +294,15 @@ export function generateMarketPosition(
   if (topCompetitor) {
     if (profile.followers >= topCompetitor.followers) {
       positioning.push(
-        `Your reach exceeds current market leaders. You're positioned for premium brand partnerships.`
+        `Your reach exceeds current market leaders. You're positioned for premium brand partnerships.`,
       );
     } else if (profile.followers >= topCompetitor.followers / 2) {
       positioning.push(
-        `You're in the competitive tier. Differentiation and consistency are your keys to breakthrough.`
+        `You're in the competitive tier. Differentiation and consistency are your keys to breakthrough.`,
       );
     } else {
       positioning.push(
-        `You're in a high-growth segment. Focus on niche authority building before scaling.`
+        `You're in a high-growth segment. Focus on niche authority building before scaling.`,
       );
     }
   }

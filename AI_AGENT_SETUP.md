@@ -7,32 +7,39 @@ This system implements a powerful, non-replicable AI agent that performs market 
 ## Key Features
 
 ### 1. Multi-Provider AI Infrastructure
+
 - **OpenAI GPT-4**: For comprehensive analysis and trend prediction
 - **Anthropic Claude**: For deep reasoning and competitive analysis
 - **Google Gemini**: For trend analysis and real-time web integration
 - **Intelligent Provider Selection**: Automatically selects best provider based on query type
 
 ### 2. Market Research Engine
+
 The system conducts parallel research on:
+
 - **Market Position Analysis**: Current niche saturation, growth potential, content formats
 - **Monetization Research**: CPM/RPM rates, sponsorship opportunities, affiliate programs
 - **Competitor Analysis**: Top 10 creators, growth rates, unique differentiators
 - **Platform Trends**: Algorithm updates, trending content, best practices
 
 ### 3. Unique Agent Fingerprinting
+
 Each user gets a completely unique AI agent ID with:
+
 - SHA-256 hash of user ID + timestamp + cryptographic entropy
 - Personality fingerprint based on creator profile
 - Non-replicable analysis guardrails per user
 - Adaptation factors unique to each creator
 
 ### 4. Personalization Layer
+
 - **Fame Score**: Unique calculation combining followers, engagement, reach + personality fingerprint variance
 - **Adaptation Factors**: Risk tolerance, content quality, community engagement scoring
 - **Personalized Recommendations**: Generated based on user's specific metrics and market position
 - **Custom Growth Plans**: 30-day, 90-day, and 1-year plans tailored to creator's profile
 
 ### 5. Dynamic PDF Generation
+
 - 8-page personalized creator growth kit
 - Market research insights
 - Competitive analysis
@@ -62,6 +69,7 @@ GOOGLE_API_KEY=your_google_api_key
 ### Environment Variable Priority
 
 The system intelligently selects providers in this order:
+
 1. OpenAI (best for general analysis)
 2. Anthropic (best for reasoning)
 3. Google (best for trend analysis)
@@ -75,25 +83,27 @@ If only one provider is available, it will be used for all queries.
 Generates comprehensive market-driven analysis for a creator.
 
 **Request:**
+
 ```typescript
 {
-  userId: string;                    // Unique user identifier
+  userId: string; // Unique user identifier
   creatorProfile: {
-    name: string;                    // Creator's name
-    niche: string;                   // Content niche (e.g., "Beauty", "Gaming")
-    platform: string;                // Primary platform (e.g., "YouTube", "TikTok")
-    followers: number;               // Current follower count
-    engagementRate: number;          // Engagement rate as decimal (e.g., 0.05 for 5%)
-    monthlyViews: number;            // Average monthly views
-    content: string;                 // Description of content style
-    goals: string;                   // Creator's goals
-    challenges: string;              // Current challenges
-  };
+    name: string; // Creator's name
+    niche: string; // Content niche (e.g., "Beauty", "Gaming")
+    platform: string; // Primary platform (e.g., "YouTube", "TikTok")
+    followers: number; // Current follower count
+    engagementRate: number; // Engagement rate as decimal (e.g., 0.05 for 5%)
+    monthlyViews: number; // Average monthly views
+    content: string; // Description of content style
+    goals: string; // Creator's goals
+    challenges: string; // Current challenges
+  }
   analysisType: "comprehensive" | "trend" | "monetization" | "competitive";
 }
 ```
 
 **Response:**
+
 ```typescript
 {
   agentId: string;                   // Unique agent ID for this analysis
@@ -164,7 +174,7 @@ function MyComponent() {
 
       console.log("Fame Score:", result.analysis.fameScore);
       console.log("Recommendations:", result.analysis.recommendations);
-      
+
       // Download PDF
       if (result.pdfUrl) {
         const link = document.createElement('a');
@@ -194,12 +204,14 @@ function MyComponent() {
 ### Service Layer
 
 #### 1. `server/services/ai-agent.ts`
+
 - Multi-provider LLM abstraction
 - Unique agent ID generation
 - Provider selection logic
 - API calls to OpenAI, Anthropic, Google
 
 #### 2. `server/services/market-research.ts`
+
 - Parallel market research queries
 - Trend analysis
 - Competitor analysis
@@ -207,6 +219,7 @@ function MyComponent() {
 - Data compilation and normalization
 
 #### 3. `server/services/personalization.ts`
+
 - Personality fingerprint generation
 - Adaptation factor calculation
 - Unique Fame Score calculation
@@ -215,6 +228,7 @@ function MyComponent() {
 - Market position statement generation
 
 #### 4. `server/services/pdf-generator.ts`
+
 - 8-page PDF generation
 - Dynamic content layout
 - Market research visualization
@@ -224,6 +238,7 @@ function MyComponent() {
 ### API Routes
 
 #### `server/routes/ai-agent-analysis.ts`
+
 - Main endpoint that orchestrates all services
 - Validates requests
 - Compiles analysis response
@@ -240,13 +255,15 @@ Each analysis creates a completely unique agent:
 const agentId = `agent_${sha256(userId + timestamp + entropy)}_${timestamp}`;
 
 // Personality Fingerprint: Unique per analysis
-const fingerprint = sha256(JSON.stringify({
-  userId,
-  creatorProfile,
-  agentId,
-  timestamp: Date.now(),
-  entropy: randomBytes(16)
-}));
+const fingerprint = sha256(
+  JSON.stringify({
+    userId,
+    creatorProfile,
+    agentId,
+    timestamp: Date.now(),
+    entropy: randomBytes(16),
+  }),
+);
 ```
 
 ### Fame Score Calculation
@@ -299,6 +316,7 @@ Final Score = min(100, base_score + personality_variance)
 ## Error Handling
 
 The system gracefully handles:
+
 - **Missing API Keys**: Returns error with instructions
 - **API Failures**: Tries next provider or returns mock data
 - **PDF Generation Errors**: Returns analysis without PDF
@@ -361,6 +379,7 @@ curl -X POST http://localhost:3000/api/ai-agent-analysis \
 ## Support
 
 For issues or questions:
+
 - Email: mail@famechase.com
 - Update environment variables via DevServerControl tool
 - Check logs for detailed error messages

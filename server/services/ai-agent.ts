@@ -65,7 +65,7 @@ export function getAvailableProviders(): AIProvider[] {
  */
 export async function callOpenAI(
   apiKey: string,
-  prompt: string
+  prompt: string,
 ): Promise<string> {
   const response = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -106,7 +106,7 @@ export async function callOpenAI(
  */
 export async function callAnthropic(
   apiKey: string,
-  prompt: string
+  prompt: string,
 ): Promise<string> {
   const response = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
@@ -144,7 +144,7 @@ export async function callAnthropic(
  */
 export async function callGoogle(
   apiKey: string,
-  prompt: string
+  prompt: string,
 ): Promise<string> {
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
@@ -169,7 +169,7 @@ export async function callGoogle(
           },
         },
       }),
-    }
+    },
   );
 
   if (!response.ok) {
@@ -188,7 +188,7 @@ export async function callGoogle(
 export function selectBestProvider(providers: AIProvider[]): AIProvider {
   if (providers.length === 0) {
     throw new Error(
-      "No AI providers configured. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_API_KEY"
+      "No AI providers configured. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_API_KEY",
     );
   }
 
@@ -207,7 +207,7 @@ export function selectBestProvider(providers: AIProvider[]): AIProvider {
  */
 export async function executeMarketResearch(
   query: ResearchQuery,
-  agentId: string
+  agentId: string,
 ): Promise<string> {
   const providers = getAvailableProviders();
   const selectedProvider = selectBestProvider(providers);

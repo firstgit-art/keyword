@@ -8,7 +8,9 @@ interface UseAIAgentAnalysisState {
   data: AIAgentAnalysisResponse | null;
   loading: boolean;
   error: Error | null;
-  analyze: (request: AIAgentAnalysisRequest) => Promise<AIAgentAnalysisResponse>;
+  analyze: (
+    request: AIAgentAnalysisRequest,
+  ) => Promise<AIAgentAnalysisResponse>;
 }
 
 /**
@@ -21,7 +23,9 @@ export function useAIAgentAnalysis(): UseAIAgentAnalysisState {
   const [error, setError] = useState<Error | null>(null);
 
   const analyze = useCallback(
-    async (request: AIAgentAnalysisRequest): Promise<AIAgentAnalysisResponse> => {
+    async (
+      request: AIAgentAnalysisRequest,
+    ): Promise<AIAgentAnalysisResponse> => {
       setLoading(true);
       setError(null);
 
@@ -37,7 +41,7 @@ export function useAIAgentAnalysis(): UseAIAgentAnalysisState {
         if (!response.ok) {
           const errorData = (await response.json()) as { error?: string };
           throw new Error(
-            errorData.error || `API error: ${response.statusText}`
+            errorData.error || `API error: ${response.statusText}`,
           );
         }
 
@@ -52,7 +56,7 @@ export function useAIAgentAnalysis(): UseAIAgentAnalysisState {
         setLoading(false);
       }
     },
-    []
+    [],
   );
 
   return {

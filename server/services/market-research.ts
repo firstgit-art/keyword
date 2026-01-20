@@ -1,7 +1,4 @@
-import {
-  executeMarketResearch,
-  type ResearchQuery,
-} from "./ai-agent.js";
+import { executeMarketResearch, type ResearchQuery } from "./ai-agent.js";
 import { type MarketResearchData } from "../../shared/api.js";
 
 /**
@@ -10,7 +7,7 @@ import { type MarketResearchData } from "../../shared/api.js";
 export async function analyzeMarketPosition(
   creatorNiche: string,
   platform: string,
-  agentId: string
+  agentId: string,
 ): Promise<string> {
   const query: ResearchQuery = {
     topic: `Creator market analysis for ${creatorNiche} niche on ${platform}`,
@@ -34,7 +31,7 @@ export async function researchMonetization(
   niche: string,
   platform: string,
   followers: number,
-  agentId: string
+  agentId: string,
 ): Promise<string> {
   const query: ResearchQuery = {
     topic: `Monetization opportunities for ${niche} creators on ${platform}`,
@@ -57,7 +54,7 @@ export async function researchMonetization(
 export async function analyzeCompetitors(
   creatorNiche: string,
   platform: string,
-  agentId: string
+  agentId: string,
 ): Promise<string> {
   const query: ResearchQuery = {
     topic: `Competitive analysis for ${creatorNiche} creators on ${platform}`,
@@ -79,7 +76,7 @@ export async function analyzeCompetitors(
  */
 export async function analyzePlatformTrends(
   platform: string,
-  agentId: string
+  agentId: string,
 ): Promise<string> {
   const query: ResearchQuery = {
     topic: `${platform} trends and algorithm updates`,
@@ -119,21 +116,17 @@ export async function compileMarketResearchData(
   creatorNiche: string,
   platform: string,
   followers: number,
-  agentId: string
+  agentId: string,
 ): Promise<MarketResearchData> {
   try {
     // Run parallel research queries
-    const [
-      marketPositionData,
-      monetizationData,
-      competitorData,
-      trendData,
-    ] = await Promise.all([
-      analyzeMarketPosition(creatorNiche, platform, agentId),
-      researchMonetization(creatorNiche, platform, followers, agentId),
-      analyzeCompetitors(creatorNiche, platform, agentId),
-      analyzePlatformTrends(platform, agentId),
-    ]);
+    const [marketPositionData, monetizationData, competitorData, trendData] =
+      await Promise.all([
+        analyzeMarketPosition(creatorNiche, platform, agentId),
+        researchMonetization(creatorNiche, platform, followers, agentId),
+        analyzeCompetitors(creatorNiche, platform, agentId),
+        analyzePlatformTrends(platform, agentId),
+      ]);
 
     const marketParsed = parseAIResponse(marketPositionData);
     const monetizationParsed = parseAIResponse(monetizationData);
@@ -147,7 +140,7 @@ export async function compileMarketResearchData(
       },
       monetizationOpportunities: extractMonetizationOpportunities(
         monetizationParsed,
-        followers
+        followers,
       ),
       industryInsights: extractInsights(marketParsed),
     };
@@ -188,7 +181,7 @@ export async function compileMarketResearchData(
 
 function extractTrends(
   marketData: Record<string, unknown>,
-  trendData: Record<string, unknown>
+  trendData: Record<string, unknown>,
 ): string[] {
   const trends = new Set<string>();
 
@@ -213,23 +206,23 @@ function extractTrends(
   return Array.from(trends);
 }
 
-function extractCompetitors(
-  competitorData: Record<string, unknown>
-): Array<{
+function extractCompetitors(competitorData: Record<string, unknown>): Array<{
   name: string;
   followers: number;
   avgEngagement: number;
   monetizationStrategy: string;
 }> {
   if (Array.isArray(competitorData.top_creators)) {
-    return competitorData.top_creators.slice(0, 5).map((c: Record<string, unknown>) => ({
-      name: String(c.name || "Top Creator"),
-      followers: Number(c.followers || 100000),
-      avgEngagement: Number(c.engagement || 5),
-      monetizationStrategy: String(
-        c.strategy || "Brand partnerships + Sponsorships"
-      ),
-    }));
+    return competitorData.top_creators
+      .slice(0, 5)
+      .map((c: Record<string, unknown>) => ({
+        name: String(c.name || "Top Creator"),
+        followers: Number(c.followers || 100000),
+        avgEngagement: Number(c.engagement || 5),
+        monetizationStrategy: String(
+          c.strategy || "Brand partnerships + Sponsorships",
+        ),
+      }));
   }
 
   return [
@@ -250,7 +243,7 @@ function extractCompetitors(
 
 function extractMonetizationOpportunities(
   monetizationData: Record<string, unknown>,
-  followers: number
+  followers: number,
 ): Array<{
   type: string;
   estimatedEarnings: string;
@@ -270,17 +263,29 @@ function extractMonetizationOpportunities(
     {
       type: "Brand Partnerships",
       estimatedEarnings: `$${Math.min(500, Math.floor(followers / 20))}-$${Math.min(2000, Math.floor(followers / 5))} per post`,
-      requirements: ["Minimum 10k followers", "Consistent posting", "2-5% engagement rate"],
+      requirements: [
+        "Minimum 10k followers",
+        "Consistent posting",
+        "2-5% engagement rate",
+      ],
     },
     {
       type: "Affiliate Marketing",
       estimatedEarnings: "$200-1000 per month",
-      requirements: ["Engaged audience", "Relevant products", "Trust built with audience"],
+      requirements: [
+        "Engaged audience",
+        "Relevant products",
+        "Trust built with audience",
+      ],
     },
     {
       type: "Sponsorships",
       estimatedEarnings: `$${Math.min(1000, Math.floor(followers / 10))}-$${Math.min(5000, Math.floor(followers / 2))} per month`,
-      requirements: ["50k+ followers preferred", "Niche relevance", "Professional media kit"],
+      requirements: [
+        "50k+ followers preferred",
+        "Niche relevance",
+        "Professional media kit",
+      ],
     },
   ];
 

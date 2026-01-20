@@ -13,7 +13,10 @@ import {
   generateMarketPosition,
 } from "../services/personalization.js";
 import { generatePersonalizedPDF } from "../services/pdf-generator.js";
-import { type AIAgentAnalysisRequest, type AIAgentAnalysisResponse } from "../../shared/api.js";
+import {
+  type AIAgentAnalysisRequest,
+  type AIAgentAnalysisResponse,
+} from "../../shared/api.js";
 
 export const handleAIAgentAnalysis: RequestHandler = async (req, res) => {
   try {
@@ -31,7 +34,8 @@ export const handleAIAgentAnalysis: RequestHandler = async (req, res) => {
     const providers = getAvailableProviders();
     if (providers.length === 0) {
       res.status(500).json({
-        error: "No AI providers configured. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_API_KEY environment variables.",
+        error:
+          "No AI providers configured. Set OPENAI_API_KEY, ANTHROPIC_API_KEY, or GOOGLE_API_KEY environment variables.",
       });
       return;
     }
@@ -43,12 +47,12 @@ export const handleAIAgentAnalysis: RequestHandler = async (req, res) => {
     const personalityFingerprint = generatePersonalityFingerprint(
       analysisRequest.userId,
       analysisRequest.creatorProfile,
-      agentId
+      agentId,
     );
 
     // Calculate adaptation factors
     const adaptationFactors = calculateAdaptationFactors(
-      analysisRequest.creatorProfile
+      analysisRequest.creatorProfile,
     );
 
     // Compile market research data
@@ -56,21 +60,21 @@ export const handleAIAgentAnalysis: RequestHandler = async (req, res) => {
       analysisRequest.creatorProfile.niche,
       analysisRequest.creatorProfile.platform,
       analysisRequest.creatorProfile.followers,
-      agentId
+      agentId,
     );
 
     // Calculate Fame Score
     const fameScore = calculateUniqueFameScore(
       analysisRequest.creatorProfile,
       marketResearch,
-      personalityFingerprint
+      personalityFingerprint,
     );
 
     // Generate market position
     const marketPosition = generateMarketPosition(
       analysisRequest.creatorProfile,
       marketResearch,
-      fameScore
+      fameScore,
     );
 
     // Generate personalized recommendations
@@ -84,13 +88,13 @@ export const handleAIAgentAnalysis: RequestHandler = async (req, res) => {
 
     const recommendations = generatePersonalizedRecommendations(
       marketResearch,
-      personalizationProfile
+      personalizationProfile,
     );
 
     // Generate growth plan
     const growthPlan = generatePersonalizedGrowthPlan(
       analysisRequest.creatorProfile,
-      marketResearch
+      marketResearch,
     );
 
     // Compile analysis response
@@ -102,9 +106,7 @@ export const handleAIAgentAnalysis: RequestHandler = async (req, res) => {
         marketPosition,
         keyInsights: marketResearch.industryInsights.slice(0, 5),
         recommendations,
-        trendAnalysis: marketResearch.trends
-          .slice(0, 3)
-          .join(" | "),
+        trendAnalysis: marketResearch.trends.slice(0, 3).join(" | "),
         competitiveAdvantage: `Based on market analysis, you stand out in the ${analysisRequest.creatorProfile.niche} space due to your ${adaptationFactors.contentQuality >= 7 ? "high-quality content" : "authentic approach"} and ${adaptationFactors.communityEngagement >= 7 ? "strong community engagement" : "growing audience base"}. Your unique selling proposition lies in combining ${analysisRequest.creatorProfile.niche} expertise with ${analysisRequest.creatorProfile.goals}.`,
         monetizationStrategy: `Start with ${adaptationFactors.timeToMonetize === "immediate" ? "premium brand partnerships and sponsorships" : "affiliate marketing and micro-partnerships"} to build momentum. Focus on ${adaptationFactors.communityEngagement >= 7 ? "community monetization through membership/courses" : "scaling reach before premium monetization"}.`,
       },
