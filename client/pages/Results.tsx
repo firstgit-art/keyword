@@ -137,7 +137,7 @@ const languages = {
     weaknesses: "Weaknesses",
     opportunities: "Opportunities",
     threats: "Threats",
-    keySuggestions: "मुख्य सुझाव",
+    keySuggestions: "Key Suggestions",
     creatorVitalStats: "Your Creator Vital Stats",
     fameScore: "Fame Score",
     growthPotential: "Growth Potential",
