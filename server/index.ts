@@ -2,6 +2,12 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo.js";
 import { handleAIAgentAnalysis } from "./routes/ai-agent-analysis.js";
+import {
+  handleCaptureQuizData,
+  handleCaptureDownload,
+  handleGetUserAnalytics,
+  handleGetAllUsersAnalytics,
+} from "./routes/user-analytics.js";
 
 export function createServer() {
   const app = express();
@@ -20,6 +26,12 @@ export function createServer() {
 
   // AI Agent Analysis Route
   app.post("/api/ai-agent-analysis", handleAIAgentAnalysis);
+
+  // User Analytics Routes
+  app.post("/api/user-analytics/quiz", handleCaptureQuizData);
+  app.post("/api/user-analytics/download", handleCaptureDownload);
+  app.get("/api/user-analytics/:userId", handleGetUserAnalytics);
+  app.get("/api/user-analytics/admin/all", handleGetAllUsersAnalytics);
 
   return app;
 }

@@ -137,7 +137,7 @@ const languages = {
     weaknesses: "Weaknesses",
     opportunities: "Opportunities",
     threats: "Threats",
-    keySuggestions: "मुख्य सुझाव",
+    keySuggestions: "Key Suggestions",
     creatorVitalStats: "Your Creator Vital Stats",
     fameScore: "Fame Score",
     growthPotential: "Growth Potential",
@@ -535,7 +535,7 @@ ${analysis.swotAnalysis.weaknesses.map((w: string, i: number) => `${i + 1}. ${w}
 ${analysis.swotAnalysis.opportunities.map((o: string, i: number) => `${i + 1}. ${o}\n`).join("\n")}
 
 
-🎯 ${language === "hindi" ? "मुख्य सुझाव:" : "KEY RECOMMENDATIONS:"}
+🎯 ${language === "hindi" ? "मुख्य सुझाव:" : "KEY SUGGESTIONS:"}
 ────────────────────────────────────────────
 
 ${analysis.suggestions
@@ -1223,92 +1223,6 @@ ${language === "hindi" ? "💡 नेक्स्ट ��िव���यू
                       ? "डाउनलोड करें"
                       : "Download"}
                 </button>
-              </div>
-            </div>
-
-            {/* ALL PRODUCT DOWNLOADS SECTION */}
-            <div className="bg-gradient-to-r from-indigo-50 to-cyan-50 border-2 border-indigo-200 rounded-2xl p-8 mb-8">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="bg-gradient-to-r from-indigo-500 to-cyan-600 text-white px-3 py-1 rounded-full text-sm font-bold">
-                  📦 BONUS DOWNLOADS
-                </div>
-              </div>
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">
-                {language === "hindi"
-                  ? "🎁 सभी प्रीमियम टेम्प्लेट्स और गाइड्स डाउनलोड करें"
-                  : "🎁 Download All Premium Templates & Guides"}
-              </h2>
-              <p className="text-gray-600 mb-6">
-                {language === "hindi"
-                  ? "सभी products से templates, guides और tools को डाउनलोड करें - सब कुछ एक जगह!"
-                  : "Access premium templates, guides, and tools from all our products - everything in one place!"}
-              </p>
-
-              <div className="space-y-8">
-                {productConfigs.map((product) => (
-                  <div
-                    key={product.id}
-                    className="border-l-4 border-indigo-500 pl-6"
-                  >
-                    <h3 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                      <Gift className="w-5 h-5 text-indigo-600" />
-                      {product.name}
-                    </h3>
-                    {product.downloads && product.downloads.length > 0 ? (
-                      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {product.downloads.map((download) => (
-                          <div
-                            key={download.id}
-                            className="bg-white rounded-xl p-4 border border-indigo-200 hover:border-indigo-400 transition-colors"
-                          >
-                            <p className="font-medium text-gray-900 mb-3 text-sm">
-                              {download.name}
-                            </p>
-                            <button
-                              onClick={() => {
-                                const downloadId = `${product.id}-${download.id}`;
-                                setDownloadingId(downloadId);
-                                void generateDownload(
-                                  `${product.id}-${download.id}`,
-                                  `${personalInfo.name || quizData?.name || "Creator"}_${download.fileName}_${language}.pdf`,
-                                  product.id,
-                                  download.id,
-                                );
-                              }}
-                              disabled={
-                                downloadingId === `${product.id}-${download.id}`
-                              }
-                              className="w-full bg-indigo-600 text-white px-3 py-2 rounded-lg text-xs font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <Download className="w-3 h-3 inline mr-1" />
-                              {downloadingId === `${product.id}-${download.id}`
-                                ? language === "hindi"
-                                  ? "तैयार..."
-                                  : "Preparing..."
-                                : language === "hindi"
-                                  ? "डाउनलोड"
-                                  : "Download"}
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-gray-500 text-sm italic">
-                        {language === "hindi"
-                          ? "कोई डाउनलोड उपलब्ध नहीं"
-                          : "No downloads available"}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-gradient-to-r from-cyan-50 to-indigo-50 border border-indigo-200 rounded-xl p-4 mt-6">
-                <p className="text-indigo-800 font-medium text-center text-sm">
-                  {language === "hindi"
-                    ? "✨ सभी downloads बिल्कुल FREE हैं - payment के साथ उपलब्ध!"
-                    : "✨ All downloads are FREE - included with your payment!"}
-                </p>
               </div>
             </div>
 
