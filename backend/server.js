@@ -83,33 +83,79 @@ app.post("/api/payment", async (req, res) => {
 app.post("/api/payment/success", async (req, res) => {
   const payment = req.body;
 
-  // Save to Supabase
-  await supabase.from("payments").insert([
-    {
-      txnid: payment.txnid,
-      amount: payment.amount,
-      email: payment.email,
-      status: "success",
-    },
-  ]);
+  // Save to Supabase with error handling
+  if (supabase) {
+    try {
+      const { error } = await supabase.from("payments").insert([
+        {
+          txnid: payment.txnid,
+          amount: payment.amount,
+          email: payment.email,
+          status: "success",
+        },
+      ]);
 
-  return res.send("Payment Success Recorded");
+      if (error) {
+        console.error("❌ Supabase payment success insert error:", error);
+        return res.status(500).json({
+          error: "Failed to record payment",
+          details: error.message,
+        });
+      }
+      console.log("✅ Payment success recorded:", payment.txnid);
+    } catch (error) {
+      console.error(
+        "❌ Error recording payment success:",
+        error instanceof Error ? error.message : String(error),
+      );
+      return res
+        .status(500)
+        .json({ error: "Failed to record payment success" });
+    }
+  } else {
+    console.warn("⚠️ Supabase not configured, cannot record payment success");
+  }
+
+  return res.json({ status: "success", message: "Payment recorded" });
 });
 
 // Failure Webhook
 app.post("/api/payment/failure", async (req, res) => {
   const payment = req.body;
 
-  await supabase.from("payments").insert([
-    {
-      txnid: payment.txnid,
-      amount: payment.amount,
-      email: payment.email,
-      status: "failure",
-    },
-  ]);
+  if (supabase) {
+    try {
+      const { error } = await supabase.from("payments").insert([
+        {
+          txnid: payment.txnid,
+          amount: payment.amount,
+          email: payment.email,
+          status: "failure",
+        },
+      ]);
 
-  return res.send("Payment Failed Recorded");
+      if (error) {
+        console.error("❌ Supabase payment failure insert error:", error);
+        return res.status(500).json({
+          error: "Failed to record payment failure",
+          details: error.message,
+        });
+      }
+      console.log("✅ Payment failure recorded:", payment.txnid);
+    } catch (error) {
+      console.error(
+        "❌ Error recording payment failure:",
+        error instanceof Error ? error.message : String(error),
+      );
+      return res
+        .status(500)
+        .json({ error: "Failed to record payment failure" });
+    }
+  } else {
+    console.warn("⚠️ Supabase not configured, cannot record payment failure");
+  }
+
+  return res.json({ status: "failure", message: "Payment failure recorded" });
 });
 
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
