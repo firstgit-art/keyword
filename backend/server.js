@@ -7,14 +7,43 @@ import { createClient } from "@supabase/supabase-js";
 
 dotenv.config();
 const app = express();
-app.use(cors());
+
+// Enhanced CORS configuration
+const corsOptions = {
+  origin: process.env.ALLOWED_ORIGINS?.split(",") || ["*"],
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+};
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const PORT = process.env.PORT || 5000;
 
+// Validate Supabase credentials
+if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+  console.error(
+    "❌ Missing Supabase environment variables: SUPABASE_URL and/or SUPABASE_ANON_KEY",
+  );
+  console.error(
+    "⚠️  Payment functionality will not work without these credentials.",
+  );
+}
+
 // Supabase connection
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+let supabase = null;
+try {
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_ANON_KEY) {
+    supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_ANON_KEY,
+    );
+    console.log("✅ Supabase connected successfully");
+  }
+} catch (error) {
+  console.error("❌ Failed to initialize Supabase:", error);
+}
 
 // PayU Config
 const PAYU_KEY = process.env.PAYU_KEY;
