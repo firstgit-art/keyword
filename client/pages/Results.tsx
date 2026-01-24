@@ -535,7 +535,7 @@ ${analysis.swotAnalysis.weaknesses.map((w: string, i: number) => `${i + 1}. ${w}
 ${analysis.swotAnalysis.opportunities.map((o: string, i: number) => `${i + 1}. ${o}\n`).join("\n")}
 
 
-🎯 ${language === "hindi" ? "मुख्य सुझाव:" : "KEY RECOMMENDATIONS:"}
+🎯 ${language === "hindi" ? "मुख्य सुझाव:" : "KEY SUGGESTIONS:"}
 ────────────────────────────────────────────
 
 ${analysis.suggestions
