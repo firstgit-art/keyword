@@ -350,30 +350,84 @@ export const dbHelpers = {
     return { data, error };
   },
 
-  // Purchases
+  // Purchases - with retry logic for network failures
   async createPurchase(purchaseData: Partial<Purchase>) {
     if (!supabase) {
       return { data: null, error: { message: "Supabase not configured" } };
     }
-    const { data, error } = await supabase
-      .from("purchases")
-      .insert([purchaseData])
-      .select()
-      .single();
-    return { data, error };
+
+    // Retry up to 3 times for network errors
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const { data, error } = await Promise.race([
+          supabase
+            .from("purchases")
+            .insert([purchaseData])
+            .select()
+            .single(),
+          new Promise((_, reject) =>
+            setTimeout(
+              () => reject(new Error("Request timeout")),
+              10000, // 10 second timeout
+            ),
+          ),
+        ]) as any;
+
+        if (!error) return { data, error };
+        if (!isCORSOrNetworkError(error)) return { data, error };
+
+        // Network error - retry
+        console.warn(`Purchase insert attempt ${attempt + 1} failed, retrying...`);
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      } catch (error) {
+        if (attempt === 2) {
+          console.error("Purchase insert failed after 3 attempts", error);
+          return { data: null, error };
+        }
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
+    return { data: null, error: { message: "Failed after retries" } };
   },
 
   async updatePurchase(id: string, updates: Partial<Purchase>) {
     if (!supabase) {
       return { data: null, error: { message: "Supabase not configured" } };
     }
-    const { data, error } = await supabase
-      .from("purchases")
-      .update(updates)
-      .eq("id", id)
-      .select()
-      .single();
-    return { data, error };
+
+    // Retry up to 3 times for network errors
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const { data, error } = await Promise.race([
+          supabase
+            .from("purchases")
+            .update(updates)
+            .eq("id", id)
+            .select()
+            .single(),
+          new Promise((_, reject) =>
+            setTimeout(
+              () => reject(new Error("Request timeout")),
+              10000, // 10 second timeout
+            ),
+          ),
+        ]) as any;
+
+        if (!error) return { data, error };
+        if (!isCORSOrNetworkError(error)) return { data, error };
+
+        // Network error - retry
+        console.warn(`Purchase update attempt ${attempt + 1} failed, retrying...`);
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      } catch (error) {
+        if (attempt === 2) {
+          console.error("Purchase update failed after 3 attempts", error);
+          return { data: null, error };
+        }
+        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+      }
+    }
+    return { data: null, error: { message: "Failed after retries" } };
   },
 
   async getUserPurchases(userId: string) {
