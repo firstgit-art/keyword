@@ -915,7 +915,7 @@ export default function Quiz() {
 
       <main
         ref={quizContentRef}
-        className="container mx-auto px-2 md:px-4 pt-1 pb-36"
+        className="container mx-auto px-2 md:px-4 pt-1 pb-52 md:pb-56"
       >
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-2 md:mb-3">
@@ -932,7 +932,7 @@ export default function Quiz() {
             </div>
           </div>
 
-          <div className="bg-white border-2 border-gray-100 rounded-2xl px-4 md:px-8 pt-3 md:pt-6 pb-20 md:pb-28 shadow-xl backdrop-blur-sm min-h-[70vh] flex flex-col gap-3">
+          <div className="bg-white border-2 border-gray-100 rounded-2xl px-4 md:px-8 pt-3 md:pt-6 pb-6 shadow-xl backdrop-blur-sm flex flex-col gap-3">
             <div className="text-xs md:text-sm text-gray-500 mb-2">
               Step {currentStep} of {totalSteps}
             </div>
