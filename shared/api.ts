@@ -77,6 +77,111 @@ export interface AIAgentAnalysisResponse {
 }
 
 /**
+ * User Quiz Data Capture
+ */
+export interface UserQuizData {
+  userId: string;
+  name: string;
+  email: string;
+  phone?: string;
+  age?: string;
+  city?: string;
+  primaryPlatform: string;
+  secondaryPlatforms: string[];
+  followerCount: number;
+  engagementRate: number;
+  niche: string;
+  contentType: string;
+  postingFrequency: string;
+  experience: string[];
+  monthlyIncome?: string;
+  biggestChallenge: string[];
+  goals: string[];
+  socialLinks: {
+    instagram?: string;
+    youtube?: string;
+    linkedin?: string;
+    website?: string;
+    twitter?: string;
+    tiktok?: string;
+  };
+  bio?: string;
+  language: "english" | "hindi";
+  analysisData?: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/**
+ * User Download Tracking
+ */
+export interface UserDownloadRecord {
+  id: string;
+  userId: string;
+  downloadType: string; // "report", "template", "guide", "calculator", etc.
+  fileName: string;
+  downloadedAt: string;
+  fileSize?: number;
+  productId?: string;
+  metadata?: any;
+}
+
+/**
+ * User Analytics Summary
+ */
+export interface UserAnalyticsSummary {
+  userId: string;
+  totalQuizzes: number;
+  totalDownloads: number;
+  totalDownloadSize: number;
+  lastActivityAt: string;
+  quizHistory: UserQuizData[];
+  downloadHistory: UserDownloadRecord[];
+  engagementScore: number;
+  platformDistribution: Record<string, number>;
+  conversionRate?: number;
+}
+
+/**
+ * Backend Capture Requests
+ */
+export interface CaptureQuizDataRequest {
+  quizData: UserQuizData;
+}
+
+export interface CaptureDownloadRequest {
+  userId: string;
+  downloadType: string;
+  fileName: string;
+  productId?: string;
+}
+
+export interface GetUserAnalyticsRequest {
+  userId: string;
+}
+
+/**
+ * Backend Capture Responses
+ */
+export interface CaptureQuizDataResponse {
+  success: boolean;
+  userId: string;
+  message: string;
+}
+
+export interface CaptureDownloadResponse {
+  success: boolean;
+  downloadId: string;
+  message: string;
+}
+
+export interface GetUserAnalyticsResponse {
+  success: boolean;
+  analytics?: UserAnalyticsSummary;
+  message: string;
+}
+
+/**
  * Base API URL for all requests
  * Change this if API endpoint changes
  */
