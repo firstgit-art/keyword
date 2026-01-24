@@ -915,7 +915,7 @@ export default function Quiz() {
 
       <main
         ref={quizContentRef}
-        className="container mx-auto px-2 md:px-4 pt-1 pb-36"
+        className="container mx-auto px-2 md:px-4 pt-1 pb-32"
       >
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-2 md:mb-3">
@@ -932,7 +932,7 @@ export default function Quiz() {
             </div>
           </div>
 
-          <div className="bg-white border-2 border-gray-100 rounded-2xl px-4 md:px-8 pt-3 md:pt-6 pb-20 md:pb-28 shadow-xl backdrop-blur-sm min-h-[70vh] flex flex-col gap-3">
+          <div className="bg-white border-2 border-gray-100 rounded-2xl px-4 md:px-8 pt-3 md:pt-6 pb-6 shadow-xl backdrop-blur-sm flex flex-col gap-3 mb-8">
             <div className="text-xs md:text-sm text-gray-500 mb-2">
               Step {currentStep} of {totalSteps}
             </div>
@@ -1473,34 +1473,45 @@ export default function Quiz() {
                     </div>
                   </div>
                 )}
-
-                <div className="fixed left-0 right-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-gray-200">
-                  <div className="container mx-auto max-w-xl px-3 md:px-4 py-3 md:py-4 flex items-center justify-between gap-3">
-                    <button
-                      onClick={handleBack}
-                      className="px-4 py-2 rounded-lg border text-sm md:text-base disabled:opacity-50 text-black"
-                      disabled={currentStep === 1}
-                    >
-                      Previous
-                    </button>
-                    <button
-                      onClick={
-                        currentStep === totalSteps ? handleSubmit : handleNext
-                      }
-                      disabled={!canProceed()}
-                      className="px-5 py-2.5 rounded-lg bg-neon-green text-black font-semibold text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed"
-                    >
-                      {currentStep === totalSteps
-                        ? t.buttons.submit
-                        : t.buttons.next}
-                    </button>
-                  </div>
-                </div>
               </>
             )}
           </div>
         </div>
       </main>
+
+      {/* Fixed Navigation Buttons - Always Visible During Quiz */}
+      {!showFreeResources && !isGenerating && (
+        <div className="fixed left-0 right-0 bottom-0 z-50 bg-white border-t-2 border-gray-200 shadow-2xl">
+          <div className="container mx-auto max-w-2xl px-2 md:px-4 py-3 md:py-4 flex items-center justify-between gap-2 md:gap-3">
+            <button
+              onClick={handleBack}
+              className="flex-1 px-3 md:px-4 py-3 rounded-lg border-2 border-gray-300 text-sm md:text-base font-semibold disabled:opacity-50 text-black hover:bg-gray-50 transition-colors"
+              disabled={currentStep === 1}
+              aria-label="Previous question"
+            >
+              <ArrowLeft className="w-4 h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">{t.buttons.back}</span>
+              <span className="sm:hidden">Back</span>
+            </button>
+            <button
+              onClick={currentStep === totalSteps ? handleSubmit : handleNext}
+              disabled={!canProceed()}
+              className="flex-1 px-3 md:px-4 py-3 rounded-lg bg-gradient-to-r from-neon-green to-electric-blue text-black font-semibold text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-lg transition-all"
+              aria-label={
+                currentStep === totalSteps ? "Submit quiz" : "Next question"
+              }
+            >
+              <span className="hidden sm:inline">
+                {currentStep === totalSteps ? t.buttons.submit : t.buttons.next}
+              </span>
+              <span className="sm:hidden">
+                {currentStep === totalSteps ? "Submit" : "Next"}
+              </span>
+              <ArrowRight className="w-4 h-4 inline ml-1 md:ml-2" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
