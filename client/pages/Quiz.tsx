@@ -1478,6 +1478,40 @@ export default function Quiz() {
           </div>
         </div>
       </main>
+
+      {/* Fixed Navigation Buttons - Always Visible During Quiz */}
+      {!showFreeResources && !isGenerating && (
+        <div className="fixed left-0 right-0 bottom-0 z-50 bg-white border-t-2 border-gray-200 shadow-2xl">
+          <div className="container mx-auto max-w-2xl px-2 md:px-4 py-3 md:py-4 flex items-center justify-between gap-2 md:gap-3">
+            <button
+              onClick={handleBack}
+              className="flex-1 px-3 md:px-4 py-3 rounded-lg border-2 border-gray-300 text-sm md:text-base font-semibold disabled:opacity-50 text-black hover:bg-gray-50 transition-colors"
+              disabled={currentStep === 1}
+              aria-label="Previous question"
+            >
+              <ArrowLeft className="w-4 h-4 inline mr-1 md:mr-2" />
+              <span className="hidden sm:inline">{t.buttons.back}</span>
+              <span className="sm:hidden">Back</span>
+            </button>
+            <button
+              onClick={currentStep === totalSteps ? handleSubmit : handleNext}
+              disabled={!canProceed()}
+              className="flex-1 px-3 md:px-4 py-3 rounded-lg bg-gradient-to-r from-neon-green to-electric-blue text-black font-semibold text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-lg transition-all"
+              aria-label={
+                currentStep === totalSteps ? "Submit quiz" : "Next question"
+              }
+            >
+              <span className="hidden sm:inline">
+                {currentStep === totalSteps ? t.buttons.submit : t.buttons.next}
+              </span>
+              <span className="sm:hidden">
+                {currentStep === totalSteps ? "Submit" : "Next"}
+              </span>
+              <ArrowRight className="w-4 h-4 inline ml-1 md:ml-2" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
