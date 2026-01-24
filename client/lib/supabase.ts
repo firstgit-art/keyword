@@ -75,6 +75,17 @@ export const isSupabaseConfigured = () => {
   return supabase !== null;
 };
 
+// Helper to detect CORS or network errors
+function isCORSOrNetworkError(error: any): boolean {
+  const message = error?.message?.toLowerCase() || "";
+  return (
+    message.includes("failed to fetch") ||
+    message.includes("cors") ||
+    message.includes("network") ||
+    message.includes("connection")
+  );
+}
+
 // Wrapper function to safely execute Supabase operations
 // Returns null on failure instead of throwing
 export async function safeSupabaseCall<T>(
@@ -87,7 +98,19 @@ export async function safeSupabaseCall<T>(
     }
     return await operation();
   } catch (error) {
-    console.warn("Supabase operation failed:", error);
+    // Log detailed error info for debugging
+    const errorMsg = error instanceof Error ? error.message : String(error);
+    const isCorsError = isCORSOrNetworkError(error);
+
+    if (isCorsError) {
+      console.error(
+        "🔴 CORS/Network Error - Supabase may not be accessible from this domain",
+        { error: errorMsg, supabaseUrl },
+      );
+    } else {
+      console.warn("Supabase operation failed:", errorMsg);
+    }
+
     return defaultValue;
   }
 }
