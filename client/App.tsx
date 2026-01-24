@@ -40,6 +40,7 @@ const App = () => (
           <Route path="/payment-failure" element={<PaymentFailure />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin-analytics" element={<AdminAnalytics />} />
           <Route path="/test-supabase" element={<TestSupabase />} />
 
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
