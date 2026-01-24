@@ -15,6 +15,7 @@ Supabase insert error: "Failed to fetch"
 ```
 
 These indicate that the Supabase client is either:
+
 1. Not initialized (missing `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`)
 2. Unable to reach Supabase servers from Fly.dev
 3. Blocked by CORS policies
@@ -22,6 +23,7 @@ These indicate that the Supabase client is either:
 ## Prerequisites
 
 You need:
+
 - A Fly.dev account (https://fly.io)
 - A Supabase project (https://supabase.com)
 - Supabase project URL and anon key
@@ -63,6 +65,7 @@ flyctl secrets list
 ```
 
 You should see:
+
 ```
 NAME                      DIGEST
 VITE_SUPABASE_URL         sha256:abc123...
@@ -94,6 +97,7 @@ flyctl deploy
 This indicates a CORS issue. Supabase may be blocking your Fly.dev domain.
 
 **Solution:**
+
 1. Go to your Supabase project **Settings** → **API** → **CORS**
 2. Add your Fly.dev domain:
    ```
@@ -173,8 +177,8 @@ console.log(import.meta.env.VITE_SUPABASE_URL);
 console.log(import.meta.env.VITE_SUPABASE_ANON_KEY);
 
 // Test Supabase connection
-import { supabase } from './client/lib/supabase';
-console.log('Supabase client:', supabase);
+import { supabase } from "./client/lib/supabase";
+console.log("Supabase client:", supabase);
 ```
 
 ### Test API Connection

@@ -61,7 +61,8 @@ const PRODUCT_VIABILITY_DATABASE: Record<string, DownloadViability> = {
     name: "30/90/365 Day Growth Strategy Guide",
     commercialScore: 88,
     marketDemand: "high",
-    monetizationPotential: "$29-$49 | High-volume seller (price-sensitive audience)",
+    monetizationPotential:
+      "$29-$49 | High-volume seller (price-sensitive audience)",
     targetAudience: "New creators, micro-influencers (18-28 years old)",
     timeToMonetize: "1-3 weeks",
     estimatedMonthlyEarnings: "$1,500-$4,000 (at 50+ sales/month)",
@@ -118,7 +119,8 @@ const PRODUCT_VIABILITY_DATABASE: Record<string, DownloadViability> = {
     monetizationPotential: "$39-$79 | Recurring potential with monthly updates",
     targetAudience: "Busy creators, content teams (25-50 years old)",
     timeToMonetize: "1-3 weeks",
-    estimatedMonthlyEarnings: "$1,200-$3,000 (at 30-40 sales/month + subscriptions)",
+    estimatedMonthlyEarnings:
+      "$1,200-$3,000 (at 30-40 sales/month + subscriptions)",
     competitionLevel: "medium",
     recommendedStrategy:
       "Offer SaaS model: $29/month subscription. Lower initial price but recurring revenue. Average customer LTV = $300+ (12 months).",
@@ -226,11 +228,15 @@ export function getViableProductsForCreator(
     .filter((product) => {
       // Filter based on monetization goal
       if (monetizationGoal === "immediate") {
-        return product.timeToMonetize.includes("Immediate") ||
-          product.timeToMonetize.includes("1-2 weeks");
+        return (
+          product.timeToMonetize.includes("Immediate") ||
+          product.timeToMonetize.includes("1-2 weeks")
+        );
       } else if (monetizationGoal === "growth") {
-        return product.timeToMonetize.includes("week") ||
-          product.timeToMonetize.includes("1-3 weeks");
+        return (
+          product.timeToMonetize.includes("week") ||
+          product.timeToMonetize.includes("1-3 weeks")
+        );
       } else {
         return product.marketDemand === "high";
       }

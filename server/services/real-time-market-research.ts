@@ -252,7 +252,8 @@ const MONETIZATION_OPPORTUNITIES: MonetizationOpportunity[] = [
     platform: "YouTube",
     difficulty: "medium",
     timeToMonetize: "3-6 months",
-    description: "Earn from video ads. CPM varies $2-10 based on audience location.",
+    description:
+      "Earn from video ads. CPM varies $2-10 based on audience location.",
     currentDemand: "high",
   },
   {
@@ -316,9 +317,10 @@ const MONETIZATION_OPPORTUNITIES: MonetizationOpportunity[] = [
  * Get trending content for a specific niche
  */
 export function getTrendsForNiche(niche: string): MarketTrend[] {
-  const normalizedNiche = Object.keys(CURRENT_TRENDS_BY_NICHE).find((n) =>
-    n.toLowerCase().includes(niche.toLowerCase()),
-  ) || niche;
+  const normalizedNiche =
+    Object.keys(CURRENT_TRENDS_BY_NICHE).find((n) =>
+      n.toLowerCase().includes(niche.toLowerCase()),
+    ) || niche;
 
   return CURRENT_TRENDS_BY_NICHE[normalizedNiche] || [];
 }
@@ -326,13 +328,8 @@ export function getTrendsForNiche(niche: string): MarketTrend[] {
 /**
  * Get platform-specific benchmarks
  */
-export function getPlatformBenchmarks(
-  platform: string,
-): CompetitorBenchmark {
-  return (
-    PLATFORM_BENCHMARKS[platform] ||
-    PLATFORM_BENCHMARKS["Instagram"]
-  );
+export function getPlatformBenchmarks(platform: string): CompetitorBenchmark {
+  return PLATFORM_BENCHMARKS[platform] || PLATFORM_BENCHMARKS["Instagram"];
 }
 
 /**

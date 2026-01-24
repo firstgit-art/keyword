@@ -115,9 +115,7 @@ export const handleCaptureDownload: RequestHandler = async (req, res) => {
     //   .select()
     //   .single();
 
-    console.log(
-      `✅ Download tracked for user: ${userId}, file: ${fileName}`,
-    );
+    console.log(`✅ Download tracked for user: ${userId}, file: ${fileName}`);
 
     const response: CaptureDownloadResponse = {
       success: true,
@@ -236,7 +234,7 @@ function calculateEngagementScore(quizData: UserQuizData): number {
   // Posting frequency (max 20)
   const frequencyMap: Record<string, number> = {
     daily: 20,
-    "multiple_times": 18,
+    multiple_times: 18,
     once: 15,
     few_times: 12,
     rarely: 5,
@@ -244,13 +242,17 @@ function calculateEngagementScore(quizData: UserQuizData): number {
   score += frequencyMap[quizData.postingFrequency] || 10;
 
   // Experience level (max 15)
-  const experienceScore = quizData.experience ? quizData.experience.length * 3 : 5;
+  const experienceScore = quizData.experience
+    ? quizData.experience.length * 3
+    : 5;
   score += Math.min(15, experienceScore);
 
   return Math.min(100, Math.round(score));
 }
 
-function calculatePlatformDistribution(quizData: UserQuizData): Record<string, number> {
+function calculatePlatformDistribution(
+  quizData: UserQuizData,
+): Record<string, number> {
   const distribution: Record<string, number> = {};
 
   distribution[quizData.primaryPlatform] = 1;
@@ -266,10 +268,7 @@ function calculatePlatformDistribution(quizData: UserQuizData): Record<string, n
  * Helper function to get all users (for admin dashboard)
  * GET /api/user-analytics/admin/all
  */
-export const handleGetAllUsersAnalytics: RequestHandler = async (
-  _req,
-  res,
-) => {
+export const handleGetAllUsersAnalytics: RequestHandler = async (_req, res) => {
   try {
     // Convert map to array for response
     const allUsers = Array.from(userDatabase.values());

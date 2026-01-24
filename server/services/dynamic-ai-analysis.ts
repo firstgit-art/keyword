@@ -57,24 +57,15 @@ function calculateEnhancedFameScore(input: DynamicAnalysisInput): number {
   let score = 0;
 
   // Followers (max 30 points)
-  const followerScore = Math.min(
-    30,
-    (input.followers / 500000) * 30,
-  );
+  const followerScore = Math.min(30, (input.followers / 500000) * 30);
   score += followerScore;
 
   // Engagement rate (max 35 points)
-  const engagementScore = Math.min(
-    35,
-    (input.engagementRate / 0.1) * 35,
-  );
+  const engagementScore = Math.min(35, (input.engagementRate / 0.1) * 35);
   score += engagementScore;
 
   // Views (max 20 points)
-  const viewScore = Math.min(
-    20,
-    (input.monthlyViews / 5000000) * 20,
-  );
+  const viewScore = Math.min(20, (input.monthlyViews / 5000000) * 20);
   score += viewScore;
 
   // Trend alignment (max 10 points)
@@ -93,7 +84,8 @@ function calculateEnhancedFameScore(input: DynamicAnalysisInput): number {
  */
 function analyzeCompetitiveAdvantage(input: DynamicAnalysisInput): string {
   const benchmark = getPlatformBenchmarks(input.platform);
-  const aboveAverageEngagement = input.engagementRate > benchmark.avgEngagementRate;
+  const aboveAverageEngagement =
+    input.engagementRate > benchmark.avgEngagementRate;
   const aboveAverageFollowers = input.followers > benchmark.avgFollowers;
 
   let advantage = "";
@@ -122,9 +114,7 @@ Action: Use this to test new content formats and trends before larger creators c
 /**
  * Generate monetization pathways with commercial viability
  */
-function generateMonetizationPathways(
-  input: DynamicAnalysisInput,
-): {
+function generateMonetizationPathways(input: DynamicAnalysisInput): {
   pathways: string[];
   score: number;
 } {
@@ -176,7 +166,9 @@ function generateMonetizationPathways(
   }
 
   // Platform-specific
-  const platformOpps = opportunities.filter((o) => o.platform === input.platform).slice(0, 1);
+  const platformOpps = opportunities
+    .filter((o) => o.platform === input.platform)
+    .slice(0, 1);
   if (platformOpps.length > 0) {
     pathways.push(
       `${input.platform === "TikTok" ? "🎵" : input.platform === "YouTube" ? "📺" : "📱"} PLATFORM-OPTIMIZED: ${platformOpps[0].type} - Best for ${input.platform} creators`,
@@ -291,7 +283,14 @@ function projectIncomeEstimates(
   const opportunities = getMonetizationOpportunities(followers);
 
   // Conservative: Current metrics only
-  const conservativeBase = followers < 50000 ? 200 : followers < 250000 ? 1000 : followers < 1000000 ? 3000 : 8000;
+  const conservativeBase =
+    followers < 50000
+      ? 200
+      : followers < 250000
+        ? 1000
+        : followers < 1000000
+          ? 3000
+          : 8000;
   const conservative = `$${conservativeBase}-$${conservativeBase * 1.5}/month (Ad revenue + basic sponsorships)`;
 
   // Realistic: With optimization
@@ -299,7 +298,14 @@ function projectIncomeEstimates(
   const realistic = `$${Math.round(conservativeBase * realisticMultiplier)}-$${Math.round(conservativeBase * realisticMultiplier * 1.5)}/month (Sponsorships + affiliate + products)`;
 
   // Optimistic: Full monetization
-  const optimisticBase = followers < 50000 ? 2000 : followers < 250000 ? 8000 : followers < 1000000 ? 25000 : 100000;
+  const optimisticBase =
+    followers < 50000
+      ? 2000
+      : followers < 250000
+        ? 8000
+        : followers < 1000000
+          ? 25000
+          : 100000;
   const optimistic = `$${optimisticBase}-$${optimisticBase * 2}/month (All streams + coaching + courses)`;
 
   return { conservative, realistic, optimistic };
@@ -319,7 +325,8 @@ export function generateDynamicAnalysis(
     input.engagementRate,
   );
   const competitiveAdvantage = analyzeCompetitiveAdvantage(input);
-  const { pathways, score: viabilityScore } = generateMonetizationPathways(input);
+  const { pathways, score: viabilityScore } =
+    generateMonetizationPathways(input);
   const growthRecommendations = generateGrowthRecommendations(input);
   const riskFactors = identifyRiskFactors(input);
   const incomeProjection = projectIncomeEstimates(input, input.followers);

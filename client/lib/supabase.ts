@@ -359,32 +359,32 @@ export const dbHelpers = {
     // Retry up to 3 times for network errors
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const { data, error } = await Promise.race([
-          supabase
-            .from("purchases")
-            .insert([purchaseData])
-            .select()
-            .single(),
+        const { data, error } = (await Promise.race([
+          supabase.from("purchases").insert([purchaseData]).select().single(),
           new Promise((_, reject) =>
             setTimeout(
               () => reject(new Error("Request timeout")),
               10000, // 10 second timeout
             ),
           ),
-        ]) as any;
+        ])) as any;
 
         if (!error) return { data, error };
         if (!isCORSOrNetworkError(error)) return { data, error };
 
         // Network error - retry
-        console.warn(`Purchase insert attempt ${attempt + 1} failed, retrying...`);
-        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        console.warn(
+          `Purchase insert attempt ${attempt + 1} failed, retrying...`,
+        );
+        if (attempt < 2)
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
       } catch (error) {
         if (attempt === 2) {
           console.error("Purchase insert failed after 3 attempts", error);
           return { data: null, error };
         }
-        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        if (attempt < 2)
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
       }
     }
     return { data: null, error: { message: "Failed after retries" } };
@@ -398,7 +398,7 @@ export const dbHelpers = {
     // Retry up to 3 times for network errors
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const { data, error } = await Promise.race([
+        const { data, error } = (await Promise.race([
           supabase
             .from("purchases")
             .update(updates)
@@ -411,20 +411,24 @@ export const dbHelpers = {
               10000, // 10 second timeout
             ),
           ),
-        ]) as any;
+        ])) as any;
 
         if (!error) return { data, error };
         if (!isCORSOrNetworkError(error)) return { data, error };
 
         // Network error - retry
-        console.warn(`Purchase update attempt ${attempt + 1} failed, retrying...`);
-        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        console.warn(
+          `Purchase update attempt ${attempt + 1} failed, retrying...`,
+        );
+        if (attempt < 2)
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
       } catch (error) {
         if (attempt === 2) {
           console.error("Purchase update failed after 3 attempts", error);
           return { data: null, error };
         }
-        if (attempt < 2) await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
+        if (attempt < 2)
+          await new Promise((r) => setTimeout(r, 1000 * (attempt + 1)));
       }
     }
     return { data: null, error: { message: "Failed after retries" } };

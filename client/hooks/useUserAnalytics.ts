@@ -72,7 +72,9 @@ export function useUserAnalytics() {
         });
 
         if (!response.ok) {
-          throw new Error(`Failed to capture quiz data: ${response.statusText}`);
+          throw new Error(
+            `Failed to capture quiz data: ${response.statusText}`,
+          );
         }
 
         const data = await response.json();

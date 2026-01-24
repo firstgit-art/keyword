@@ -1,5 +1,11 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, BarChart3, Users, Download, TrendingUp } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  Users,
+  Download,
+  TrendingUp,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface UserAnalytics {
@@ -24,7 +30,9 @@ export default function AdminAnalytics() {
   const [data, setData] = useState<AdminDashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<"followers" | "downloads" | "engagement">("followers");
+  const [sortBy, setSortBy] = useState<
+    "followers" | "downloads" | "engagement"
+  >("followers");
 
   useEffect(() => {
     fetchAnalytics();
@@ -68,7 +76,8 @@ export default function AdminAnalytics() {
   };
 
   const calculateTotalStats = () => {
-    if (!data?.users) return { totalFollowers: 0, totalDownloads: 0, avgEngagement: 0 };
+    if (!data?.users)
+      return { totalFollowers: 0, totalDownloads: 0, avgEngagement: 0 };
 
     const stats = data.users.reduce(
       (acc, user) => ({
@@ -119,7 +128,9 @@ export default function AdminAnalytics() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-gray-600 text-sm font-medium">Total Users</p>
+                  <p className="text-gray-600 text-sm font-medium">
+                    Total Users
+                  </p>
                   <p className="text-3xl font-bold text-gray-900 mt-2">
                     {data.totalUsers}
                   </p>
@@ -262,10 +273,14 @@ export default function AdminAnalytics() {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-500">{user.email}</div>
+                        <div className="text-sm text-gray-500">
+                          {user.email}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">{user.niche}</div>
+                        <div className="text-sm text-gray-900">
+                          {user.niche}
+                        </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm font-medium text-gray-900">

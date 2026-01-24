@@ -32,13 +32,13 @@ The enhanced system captures ALL user data and provides:
 
 ### Key Improvements Over Previous Version
 
-| Feature | Before | After |
-|---------|--------|-------|
-| User Data Tracking | ❌ No tracking | ✅ Complete capture |
-| Market Trends | Static data | 🔥 Real-time, trending |
-| Income Projection | Simple estimate | 💰 Multi-scenario with strategies |
-| Admin View | Limited | 📊 Full dashboard with metrics |
-| Download Tracking | None | 📥 Complete with analytics |
+| Feature            | Before          | After                             |
+| ------------------ | --------------- | --------------------------------- |
+| User Data Tracking | ❌ No tracking  | ✅ Complete capture               |
+| Market Trends      | Static data     | 🔥 Real-time, trending            |
+| Income Projection  | Simple estimate | 💰 Multi-scenario with strategies |
+| Admin View         | Limited         | 📊 Full dashboard with metrics    |
+| Download Tracking  | None            | 📥 Complete with analytics        |
 
 ---
 
@@ -169,7 +169,7 @@ function ResultsPage() {
       `user_${email}`,
       "report",
       fileName,
-      "fame-score-report"
+      "fame-score-report",
     );
     // ... proceed with download
   };
@@ -185,12 +185,14 @@ Access at: `/admin-analytics`
 ### Features
 
 1. **Overview Stats**
+
    - Total Users
    - Total Downloads
    - Average Engagement Score
    - Total Followers
 
 2. **User Data Table**
+
    - View all captured users
    - Sort by followers, downloads, or engagement
    - See creation date and engagement percentage
@@ -273,19 +275,19 @@ Access at: `/admin-analytics`
 
 #### Beauty & Skincare (Q1 2024)
 
-| Trend | Growth | Relevance | Platform |
-|-------|--------|-----------|----------|
-| Clean Beauty & Sustainability | +45% | 95/100 | Instagram |
-| Micro-transactions & Affiliate | +38% | 88/100 | TikTok |
-| AI-Powered Skincare Analysis | +52% | 82/100 | Instagram |
+| Trend                          | Growth | Relevance | Platform  |
+| ------------------------------ | ------ | --------- | --------- |
+| Clean Beauty & Sustainability  | +45%   | 95/100    | Instagram |
+| Micro-transactions & Affiliate | +38%   | 88/100    | TikTok    |
+| AI-Powered Skincare Analysis   | +52%   | 82/100    | Instagram |
 
 #### Fitness & Wellness
 
-| Trend | Growth | Relevance | Platform |
-|-------|--------|-----------|----------|
-| Micro-workouts & Time-Efficient | +41% | 92/100 | TikTok |
-| Mental Health & Recovery Content | +36% | 89/100 | YouTube |
-| Holistic Nutrition & Meal Planning | +33% | 85/100 | Instagram |
+| Trend                              | Growth | Relevance | Platform  |
+| ---------------------------------- | ------ | --------- | --------- |
+| Micro-workouts & Time-Efficient    | +41%   | 92/100    | TikTok    |
+| Mental Health & Recovery Content   | +36%   | 89/100    | YouTube   |
+| Holistic Nutrition & Meal Planning | +33%   | 85/100    | Instagram |
 
 ### Platform Benchmarks
 
@@ -572,8 +574,8 @@ const analysis = generateDynamicAnalysis({
   postingFrequency: "daily",
 });
 
-console.log(analysis.fameScore);           // 78
-console.log(analysis.trendOpportunities);  // ["AI-Powered Skincare...", ...]
+console.log(analysis.fameScore); // 78
+console.log(analysis.trendOpportunities); // ["AI-Powered Skincare...", ...]
 console.log(analysis.monetizationPathways); // Specific pathways
 console.log(analysis.estimatedIncomeProjection); // Conservative, realistic, optimistic
 ```
@@ -704,14 +706,17 @@ curl https://your-app.fly.dev/api/user-analytics/admin/all
 ### Common Issues
 
 **"No data found for user"**
+
 - Ensure quiz was captured with POST request
 - Check user_id format is consistent
 
 **"Failed to fetch analytics"**
+
 - Verify Supabase credentials are set
 - Check network connectivity
 
 **"Products not showing viability scores"**
+
 - Ensure commercial-viability.ts is imported
 - Check product IDs match exactly
 
