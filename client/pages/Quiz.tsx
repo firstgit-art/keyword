@@ -1473,33 +1473,6 @@ export default function Quiz() {
                     </div>
                   </div>
                 )}
-
-                <div className="fixed left-0 right-0 bottom-0 z-50 bg-white border-t-2 border-gray-200 shadow-2xl">
-                  <div className="container mx-auto max-w-xl px-3 md:px-4 py-4 md:py-5 flex items-center justify-between gap-3">
-                    <button
-                      onClick={handleBack}
-                      className="flex-1 px-4 py-3 rounded-lg border-2 border-gray-300 text-sm md:text-base font-semibold disabled:opacity-50 text-black hover:bg-gray-50 transition-colors"
-                      disabled={currentStep === 1}
-                      aria-label="Previous question"
-                    >
-                      <ArrowLeft className="w-4 h-4 inline mr-2" />
-                      {t.buttons.back}
-                    </button>
-                    <button
-                      onClick={
-                        currentStep === totalSteps ? handleSubmit : handleNext
-                      }
-                      disabled={!canProceed()}
-                      className="flex-1 px-4 py-3 rounded-lg bg-gradient-to-r from-neon-green to-electric-blue text-black font-semibold text-sm md:text-base disabled:opacity-60 disabled:cursor-not-allowed hover:shadow-lg transition-all"
-                      aria-label="Next question"
-                    >
-                      {currentStep === totalSteps
-                        ? t.buttons.submit
-                        : t.buttons.next}
-                      <ArrowRight className="w-4 h-4 inline ml-2" />
-                    </button>
-                  </div>
-                </div>
               </>
             )}
           </div>
