@@ -15,6 +15,7 @@ import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentFailure from "./pages/PaymentFailure";
 import AdminDashboard from "./pages/AdminDashboard";
 import AdminLogin from "./pages/AdminLogin";
+import AdminAnalytics from "./pages/AdminAnalytics";
 import TestSupabase from "./pages/TestSupabase";
 import NotFound from "./pages/NotFound";
 
